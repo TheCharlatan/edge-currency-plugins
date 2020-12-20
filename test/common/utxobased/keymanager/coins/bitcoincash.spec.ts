@@ -104,8 +104,11 @@ describe('bitcoin cash xpub to address tests;  generate valid addresses by calli
       addressType: AddressTypeEnum.p2pkh,
       coin: 'bitcoincash',
     })
-    expect(p2pkhAddress).to.equals(
+    expect(p2pkhAddress.address).to.equals(
       'bitcoincash:qqyx49mu0kkn9ftfj6hje6g2wfer34yfnq5tahq3q6'
+    )
+    expect(p2pkhAddress.legacyAddress).to.equals(
+      '1mW6fDEMjKrDHvLvoEsaeLxSCzZBf3Bfg'
     )
     const scriptPubkeyP2PKHRoundTrip = addressToScriptPubkey({
       address: 'bitcoincash:qqyx49mu0kkn9ftfj6hje6g2wfer34yfnq5tahq3q6',
@@ -136,8 +139,11 @@ describe('bitcoin cash xpub to address tests;  generate valid addresses by calli
       addressType: AddressTypeEnum.p2pkh,
       coin: 'bitcoincash',
     })
-    expect(p2pkhAddress).to.equals(
+    expect(p2pkhAddress.address).to.equals(
       'bchtest:qqaz6s295ncfs53m86qj0uw6sl8u2kuw0ymst35fx4'
+    )
+    expect(p2pkhAddress.legacyAddress).to.equals(
+      'mkpZhYtJu2r87Js3pDiWJDmPte2NRZ8bJV'
     )
     const scriptPubkeyP2PKHRoundTrip = addressToScriptPubkey({
       address: 'bchtest:qqaz6s295ncfs53m86qj0uw6sl8u2kuw0ymst35fx4',
@@ -353,9 +359,9 @@ describe('bitcoincash transaction creation and signing test', () => {
   const address: string = scriptPubkeyToAddress({
     scriptPubkey: scriptPubkey,
     network: NetworkEnum.Mainnet,
-    coin: 'bitcoin',
+    coin: 'bitcoincash',
     addressType: AddressTypeEnum.p2pkh,
-  })
+  }).address
   it('Create transaction with one legacy input and one output', async () => {
     /*
       This here is the rawtransaction as assembled below:
@@ -436,9 +442,9 @@ describe('bitcoincash replay protection transaction creation and signing test', 
   const address: string = scriptPubkeyToAddress({
     scriptPubkey: scriptPubkey,
     network: NetworkEnum.Mainnet,
-    coin: 'bitcoin',
+    coin: 'bitcoincash',
     addressType: AddressTypeEnum.p2pkh,
-  })
+  }).address
   it('Create transaction with one legacy input and one output', async () => {
     /*
       This here is the rawtransaction as assembled below:

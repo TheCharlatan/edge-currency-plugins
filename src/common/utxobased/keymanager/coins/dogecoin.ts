@@ -13,6 +13,15 @@ export class Dogecoin implements Coin {
     scriptHash: 0x16,
   }
 
+  legacyConstants = {
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
+    wif: 0x80,
+    legacyXPriv: 0x0488ade4,
+    legacyXPub: 0x0488b21e,
+    pubkeyHash: 0x00,
+    scriptHash: 0x05,
+  }
+
   testnetConstants = {
     messagePrefix: '\x18Dogecoin Signed Message:\n',
     wif: 0xef,

@@ -106,6 +106,7 @@ export interface AddressToScriptPubkeyArgs {
   address: string
   network: NetworkEnum
   addressType?: AddressTypeEnum
+  legacy?: boolean
   coin: string
 }
 
@@ -125,6 +126,11 @@ export interface ScriptPubkeyToAddressArgs {
   network: NetworkEnum
   coin: string
   redeemScript?: string
+}
+
+export interface ScriptPubkeyToAddressReturn {
+  address: string
+  legacyAddress: string
 }
 
 // Careful! Calling this the ScriptHash is only correct for p2sh addresses.
@@ -222,6 +228,14 @@ export interface SignTxArgs {
   coin: string
 }
 
+interface Bip32NetworkFromCoinArgs {
+  networkType: NetworkEnum
+  coinString: string
+  sigType?: BIP43PurposeTypeEnum
+  forWIF?: boolean
+  legacy?: boolean
+}
+
 // BitcoinJSNetwork and Bip32 are the same interfaces as declared in  bitcoin-js ts_src/network.ts
 // We redeclare them here for transparency reasons
 interface BitcoinJSNetwork {
@@ -313,16 +327,24 @@ function bip32NetworkFromCoinPrefix(
 }
 
 function bip32NetworkFromCoin(
-  networkType: NetworkEnum,
-  coinString: string,
-  sigType: BIP43PurposeTypeEnum = BIP43PurposeTypeEnum.Legacy,
-  forWIF: boolean = false
+  args: Bip32NetworkFromCoinArgs
 ): BitcoinJSNetwork {
-  const coin: Coin = getCoinFromString(coinString)
-  if (networkType === NetworkEnum.Testnet) {
+  const sigType = args.sigType ?? BIP43PurposeTypeEnum.Legacy
+  const forWIF: boolean = args.forWIF ?? false
+  const legacy: boolean = args.legacy ?? false
+  const coin: Coin = getCoinFromString(args.coinString)
+  if (args.networkType === NetworkEnum.Testnet) {
     return bip32NetworkFromCoinPrefix(
       sigType,
       coin.testnetConstants,
+      coin.segwit,
+      forWIF
+    )
+  }
+  if (legacy && typeof coin.legacyConstants !== 'undefined') {
+    return bip32NetworkFromCoinPrefix(
+      sigType,
+      coin.legacyConstants,
       coin.segwit,
       forWIF
     )
@@ -450,11 +472,11 @@ export function derivationLevelScriptHash(): number {
 }
 
 export function xpubToPubkey(args: XPubToPubkeyArgs): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    args.type
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    sigType: args.type,
+  })
   if (args.coin === 'groestlcoin') {
     const node: bip32.BIP32Interface = bip32grs.fromBase58(args.xpub, network)
     return node
@@ -673,10 +695,10 @@ function scriptHashToScriptPubkey(args: ScriptHashToScriptPubkeyArgs): string {
 export function scriptPubkeyToScriptHash(
   args: ScriptPubkeyToScriptHashArgs
 ): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+  })
   let payment: bitcoin.payments.PaymentCreator
   switch (args.scriptType) {
     case ScriptTypeEnum.p2pkh:
@@ -782,12 +804,11 @@ export function xprivToPrivateKey(args: XPrivToPrivateKeyArgs): string {
 }
 
 export function privateKeyToWIF(args: PrivateKeyToWIFArgs): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    BIP43PurposeTypeEnum.Legacy,
-    true
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    forWIF: true,
+  })
   const coinClass = getCoinFromString(args.coin)
   return bitcoin.ECPair.fromPrivateKey(Buffer.from(args.privateKey, 'hex'), {
     network,
@@ -795,12 +816,11 @@ export function privateKeyToWIF(args: PrivateKeyToWIFArgs): string {
 }
 
 export function wifToPrivateKey(args: WIFToPrivateKeyArgs): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    BIP43PurposeTypeEnum.Legacy,
-    true
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    forWIF: true,
+  })
   const coinClass = getCoinFromString(args.coin)
   const privateKey = bitcoin.ECPair.fromWIF(
     args.wifKey,
