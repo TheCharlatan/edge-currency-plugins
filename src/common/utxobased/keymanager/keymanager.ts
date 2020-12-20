@@ -357,11 +357,32 @@ function bip32NetworkFromCoin(
   )
 }
 
+export function verifyAddress(args: VerifyAddressArgs): VerifyAddressEnum {
+  try {
+    const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+      networkType: args.network,
+      coinString: args.coin,
+    })
+    guessAddressTypeFromAddress(args.address, network, args.coin, undefined)
+    return VerifyAddressEnum.good
+  } catch (e) {}
+  try {
+    const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+      networkType: args.network,
+      coinString: args.coin,
+      legacy: true,
+    })
+    guessAddressTypeFromAddress(args.address, network, args.coin, undefined)
+    return VerifyAddressEnum.legacy
+  } catch (e) {}
+  return VerifyAddressEnum.bad
+}
+
 function guessAddressTypeFromAddress(
   address: string,
   network: BitcoinJSNetwork,
-  addressType: AddressTypeEnum | undefined,
-  coin: string
+  coin: string,
+  addressType: AddressTypeEnum | undefined
 ): AddressTypeEnum {
   if (typeof addressType !== 'undefined') {
     return addressType
