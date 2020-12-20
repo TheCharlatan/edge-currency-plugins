@@ -27,7 +27,7 @@ describe('eboost mnemonic to xprv test vectors as compared with iancoleman', () 
       coin: 'eboost',
     })
     expect(resultLegacy).to.equal(
-      'xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb'
+      'xprv9zYTou2k1nf6MGqBjTJPr2sE3uZxtNs189FwEEsmm35n5jNVsv3pwVyUPpxWfeDwbhz1ByQW6eh6EFnPp34oEnDC1VZ22xapWJu3Ham3JYK'
     )
   })
 
