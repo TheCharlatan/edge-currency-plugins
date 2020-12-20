@@ -54,17 +54,27 @@ export enum TransactionInputTypeEnum {
   Segwit = 'segwit',
 }
 
-export interface MnemonicToXPrivArgs {
-  mnemonic: string
-  path: string
-  network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+export interface VerifyAddressArgs {
+  address: string
   coin: string
+  network: NetworkEnum
 }
 
-export interface LegacySeedToPrivateKeyArgs {
-  seed: string
-  index: number
+export enum VerifyAddressEnum {
+  good = 'good',
+  legacy = 'legacy',
+  bad = 'bad',
+}
+
+// export VerifyAddressReturn
+
+export interface MnemonicToXPrivArgs {
+  mnemonic: string
+  coinType?: number // defaults to the coin type as defined in the coin class
+  account?: number // defaults to account 0'
+  network: NetworkEnum
+  purpose: BIP43PurposeTypeEnum
+  coin: string
 }
 
 export interface XPrivToXPubArgs {
@@ -353,61 +363,64 @@ function guessAddressTypeFromAddress(
   try {
     const info = cashAddressToHash(address)
     if (info.type === CashaddrTypeEnum.pubkeyhash) {
-      return AddressTypeEnum.cashaddrP2PKH
+      return AddressTypeEnum.p2pkh
     }
-    return AddressTypeEnum.cashaddrP2SH
+    return AddressTypeEnum.p2sh
   } catch (e) {}
 
   throw new Error('Could not determine address type of ' + address)
 }
 
-export function legacySeedToXPriv(seed: string): string {
-  const xpriv = bip32
-    .fromSeed(Buffer.from(seed, 'hex'))
-    .derivePath('m/0')
-    .toBase58()
-  if (typeof xpriv === 'undefined') {
-    throw new Error('Failed to generate xpriv from legacy seed')
-  }
-  return xpriv
-}
-
-export function legacySeedToPrivateKey(
-  args: LegacySeedToPrivateKeyArgs
-): string {
-  const privateKey = bip32
-    .fromSeed(Buffer.from(args.seed, 'hex'))
-    .derivePath('m/0/0')
-    .derive(args.index).privateKey
-  if (typeof privateKey === 'undefined') {
-    throw new Error('Failed to generate private key from legacy seed')
-  }
-  return privateKey.toString('hex')
-}
-
 export function mnemonicToXPriv(args: MnemonicToXPrivArgs): string {
-  const seed = bip39.mnemonicToSeedSync(args.mnemonic)
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    args.type
+  // match hexadecimal number from beginning to end of string
+  const regexpHex = /^[0-9a-fA-F]+$/
+  let seed = Buffer.from(args.mnemonic, 'hex')
+  const isSeed = !!(
+    args.mnemonic.length <= 128 &&
+    args.mnemonic.length >= 32 &&
+    regexpHex.test(args.mnemonic)
   )
+  if (!isSeed) {
+    seed = bip39.mnemonicToSeedSync(args.mnemonic)
+  }
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    sigType: args.purpose,
+  })
+  const coin = getCoinFromString(args.coin)
+  const purpose = bip43PurposeTypeEnumToNumber(args.purpose)
+  let coinType = args.coinType ?? coin.coinType
+  const account = args.account ?? 0
+  coinType = args.network === 'testnet' ? 1 : coinType
   if (args.coin === 'groestlcoin') {
     const root: bip32.BIP32Interface = bip32grs.fromSeed(seed)
     root.network = network
-    return root.derivePath(args.path).toBase58()
+    return root
+      .deriveHardened(purpose)
+      .deriveHardened(coinType)
+      .deriveHardened(account)
+      .toBase58()
   }
   const root: bip32.BIP32Interface = bip32.fromSeed(seed)
   root.network = network
-  return root.derivePath(args.path).toBase58()
+  // treat a detected seed as an airbitz seed
+  if (isSeed) {
+    return root.derive(0).toBase58()
+  }
+  return root
+    .deriveHardened(purpose)
+    .deriveHardened(coinType)
+    .deriveHardened(account)
+    .toBase58()
 }
 
 export function xprivToXPub(args: XPrivToXPubArgs): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    args.type
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    sigType: args.type,
+  })
   if (args.coin === 'groestlcoin') {
     return bip32grs.fromBase58(args.xpriv, network).neutered().toBase58()
   }
@@ -732,21 +745,25 @@ export function pubkeyToScriptPubkey(
 }
 
 export function xprivToPrivateKey(args: XPrivToPrivateKeyArgs): string {
-  const network: BitcoinJSNetwork = bip32NetworkFromCoin(
-    args.network,
-    args.coin,
-    args.type
-  )
+  const network: BitcoinJSNetwork = bip32NetworkFromCoin({
+    networkType: args.network,
+    coinString: args.coin,
+    sigType: args.type,
+  })
   if (args.coin === 'groestlcoin') {
     const node: bip32.BIP32Interface = bip32grs.fromBase58(args.xpriv, network)
-    const privateKey = node.derive(args.bip44ChangeIndex).derive(args.bip44AddressIndex).privateKey
+    const privateKey = node
+      .derive(args.bip44ChangeIndex)
+      .derive(args.bip44AddressIndex).privateKey
     if (typeof privateKey === 'undefined') {
       throw new Error('Failed to generate private key from xpriv')
     }
     return privateKey.toString('hex')
   }
   const node: bip32.BIP32Interface = bip32.fromBase58(args.xpriv, network)
-  const privateKey = node.derive(args.bip44ChangeIndex).derive(args.bip44AddressIndex).privateKey
+  const privateKey = node
+    .derive(args.bip44ChangeIndex)
+    .derive(args.bip44AddressIndex).privateKey
   if (typeof privateKey === 'undefined') {
     throw new Error('Failed to generate private key from xpriv')
   }

@@ -6,7 +6,6 @@ import {
   AddressTypeEnum,
   BIP43PurposeTypeEnum,
   createTx,
-  legacySeedToPrivateKey,
   mnemonicToXPriv,
   NetworkEnum,
   privateKeyToPubkey,
@@ -20,6 +19,7 @@ import {
   TxInput,
   TxOutput,
   wifToPrivateKey,
+  xprivToPrivateKey,
   xprivToXPub,
   xpubToPubkey,
 } from '../../../../../src/common/utxobased/keymanager/keymanager'
@@ -102,6 +102,21 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
     })
     expect(resultLegacyTestnet).to.equal(
       'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR'
+    )
+  })
+})
+
+describe('bitcoin bip32 see, aka airbitz seed, to xpriv. Taken from official bip32 test vectors', () => {
+  it('seed to xpriv', () => {
+    const result = mnemonicToXPriv({
+      mnemonic:
+        'fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542',
+      network: NetworkEnum.Mainnet,
+      purpose: BIP43PurposeTypeEnum.Legacy,
+      coin: 'bitcoin',
+    })
+    expect(result).to.equal(
+      'xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt'
     )
   })
 })
@@ -289,9 +304,21 @@ describe('bitcoin xpub to address tests;  generate valid addresses by calling xp
 
 describe('bitcoin from bip32 seed to private key', () => {
   it('generate a wif key from a bip32 seed', () => {
-    const seed =
-      '1dafe5a826590b3f9558dd9e1ab1d8b86fda83a4bcc3aeeb95d81f0ab95c3d62'
-    const privateKey = legacySeedToPrivateKey({ seed, index: 0 })
+    const xpriv = mnemonicToXPriv({
+      mnemonic:
+        '1dafe5a826590b3f9558dd9e1ab1d8b86fda83a4bcc3aeeb95d81f0ab95c3d62',
+      network: NetworkEnum.Mainnet,
+      purpose: BIP43PurposeTypeEnum.Legacy,
+      coin: 'bitcoin',
+    })
+    const privateKey = xprivToPrivateKey({
+      xpriv,
+      network: NetworkEnum.Mainnet,
+      type: BIP43PurposeTypeEnum.Legacy,
+      bip44ChangeIndex: 0,
+      bip44AddressIndex: 0,
+      coin: 'bitcoin',
+    })
     const wifKey = privateKeyToWIF({
       privateKey: privateKey,
       network: NetworkEnum.Mainnet,
