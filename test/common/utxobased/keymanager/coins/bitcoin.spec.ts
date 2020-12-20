@@ -30,9 +30,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip84 mnemonic to xpriv mainnet', () => {
     const resultSegwit = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/84'/0'/0'",
       network: NetworkEnum.Mainnet,
-      type: BIP43PurposeTypeEnum.Segwit,
+      purpose: BIP43PurposeTypeEnum.Segwit,
       coin: 'bitcoin',
     })
     expect(resultSegwit).to.equal(
@@ -43,9 +42,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip84 mnemonic to xpriv testnet', () => {
     const resultSegwitTestnet = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/84'/1'/0'",
       network: NetworkEnum.Testnet,
-      type: BIP43PurposeTypeEnum.Segwit,
+      purpose: BIP43PurposeTypeEnum.Segwit,
       coin: 'bitcoin',
     })
     expect(resultSegwitTestnet).to.equal(
@@ -56,9 +54,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip49 mnemonic to xpriv mainnet', () => {
     const resultWrappedSegwit = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/49'/0'/0'",
       network: NetworkEnum.Mainnet,
-      type: BIP43PurposeTypeEnum.WrappedSegwit,
+      purpose: BIP43PurposeTypeEnum.WrappedSegwit,
       coin: 'bitcoin',
     })
     expect(resultWrappedSegwit).to.equal(
@@ -69,9 +66,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip49 mnemonic to xpriv testnet', () => {
     const resultWrappedSegwitTestnet = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/49'/1'/0'",
       network: NetworkEnum.Testnet,
-      type: BIP43PurposeTypeEnum.WrappedSegwit,
+      purpose: BIP43PurposeTypeEnum.WrappedSegwit,
       coin: 'bitcoin',
     })
     expect(resultWrappedSegwitTestnet).to.equal(
@@ -82,9 +78,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip44 mnemonic to xpriv mainnet', () => {
     const resultLegacy = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/44'/0'/0'",
       network: NetworkEnum.Mainnet,
-      type: BIP43PurposeTypeEnum.Legacy,
+      purpose: BIP43PurposeTypeEnum.Legacy,
       coin: 'bitcoin',
     })
     expect(resultLegacy).to.equal(
@@ -95,9 +90,8 @@ describe('bitcoin mnemonic to xprv test vectors as collected from BIP84, BIP49 a
   it('bip44 mnemonic to xpriv testnet', () => {
     const resultLegacyTestnet = mnemonicToXPriv({
       mnemonic: mnemonic,
-      path: "m/44'/1'/0'",
       network: NetworkEnum.Testnet,
-      type: BIP43PurposeTypeEnum.Legacy,
+      purpose: BIP43PurposeTypeEnum.Legacy,
       coin: 'bitcoin',
     })
     expect(resultLegacyTestnet).to.equal(

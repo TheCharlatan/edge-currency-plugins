@@ -238,6 +238,17 @@ interface Bip32 {
   private: number
 }
 
+function bip43PurposeTypeEnumToNumber(purpose: BIP43PurposeTypeEnum): number {
+  switch (purpose) {
+    case BIP43PurposeTypeEnum.Legacy:
+      return 44
+    case BIP43PurposeTypeEnum.WrappedSegwit:
+      return 49
+    case BIP43PurposeTypeEnum.Segwit:
+      return 84
+  }
+}
+
 function bip32NetworkFromCoinPrefix(
   sigType: BIP43PurposeTypeEnum,
   coinPrefixes: CoinPrefixes,
