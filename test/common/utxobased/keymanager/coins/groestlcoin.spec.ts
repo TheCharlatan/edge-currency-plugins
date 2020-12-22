@@ -24,7 +24,7 @@ describe('groestlcoin from XPriv to WIF to private key to WIF', () => {
     const derivedPrivateKey = xprivToPrivateKey({
       xpriv: xpriv,
       network: NetworkEnum.Mainnet,
-      type: BIP43PurposeTypeEnum.Legacy,
+      purpose: BIP43PurposeTypeEnum.Legacy,
       bip44ChangeIndex: 0,
       bip44AddressIndex: 0,
       coin: 'groestlcoin',

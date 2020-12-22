@@ -15,7 +15,7 @@ interface XPrivToXPubTests {
   xpriv: string
   xpub: string
   network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+  purpose: BIP43PurposeTypeEnum
 }
 
 interface WifToPrivateKeyTests {
@@ -33,7 +33,7 @@ interface AddressToScriptPubkeyTests {
 interface XPubToPubkeyTests {
   xpub: string
   network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+  purpose: BIP43PurposeTypeEnum
   bip44ChangeIndex: 0 | 1
   bip44AddressIndex: number
   scriptType: ScriptTypeEnum
@@ -81,7 +81,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9yWirNER4qGZHR9cLGqJi8Z23wy2M9JmbCA7zkCunzneLv84Gxj4DmZkdjjkqotSverQ7pWsHnkPdFH2RqfkmSizzR6rZFHQ9cHSqjCKs3b',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CW5FsmJuCprVuE5SJNK5GVkbyoWkc2cxR5io8cXMLKdDiTCpW3JmZtEUzKML8iYKp5Fs7iGSLnW4EjGZFaRtmVo9RPW36CY2w4imVdUNjK',
         },
@@ -89,7 +89,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -99,7 +99,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CW5FsmJuCprVuE5SJNK5GVkbyoWkc2cxR5io8cXMLKdDiTCpW3JmZtEUzKML8iYKp5Fs7iGSLnW4EjGZFaRtmVo9RPW36CY2w4imVdUNjK',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -144,7 +144,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9zG1qmEumfwLUb2rTjKTxJEfLRxBqMGYyYm4S6wXpJyjyqrnqWN2aYf4EEt6iv27QMeHWyzressEVbmgrRFoqJQX47F3ncu2ghzeRYPhTJc',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6DFNFGmoc3Vdh57KZkrUKSBPtTngEozQLmgfEVM9NeWireBwP3gH8LyY5VMsVB9zCGxzsph27TuppVSrbGP5sjqcJPrWLUwsEPrXPvCVgL1',
         },
@@ -152,7 +152,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -162,7 +162,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6DFNFGmoc3Vdh57KZkrUKSBPtTngEozQLmgfEVM9NeWireBwP3gH8LyY5VMsVB9zCGxzsph27TuppVSrbGP5sjqcJPrWLUwsEPrXPvCVgL1',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -207,7 +207,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9yMAh5zLARRVxiM7BXEzJ2t6WbW7dbm8G765ctzqhjYqW9GAtei2NjQyYmDsoVoWxTdfY5D1uDAm58bcTb35GHTxKRCVzpv42SfuxTfPTCm',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CLX6bXDznyoBCRaHYmzfApq4dLc34UydL1gRHQTG55pNwbKSC2GvXjTQ4VS3n6P24fRd14uKz7P92xJQ3MWdRzUxGkqiftZf3riboiJLJs',
         },
@@ -215,7 +215,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -225,7 +225,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CLX6bXDznyoBCRaHYmzfApq4dLc34UydL1gRHQTG55pNwbKSC2GvXjTQ4VS3n6P24fRd14uKz7P92xJQ3MWdRzUxGkqiftZf3riboiJLJs',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -270,7 +270,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9yNMmQAw1VJVPvfhyQiCoDT5hpKGuddV8ciqvzDiZkpjURynLpPAsTyDArW8ZUySHdeWnTLy3mJE8RMxo6AaKywAEGVe9t84tcBFssGyVNo',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CMiAuhpqrrncQkB5SFDAMPpFr9mK6MLVqeSjNdL86MiMEJvtMhRRGHh27KNR7zLG8BPcjSEHQ2g6MYcKVssJGVZekhuYQQJc9kGC9ofwJX',
         },
@@ -278,7 +278,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -288,7 +288,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CMiAuhpqrrncQkB5SFDAMPpFr9mK6MLVqeSjNdL86MiMEJvtMhRRGHh27KNR7zLG8BPcjSEHQ2g6MYcKVssJGVZekhuYQQJc9kGC9ofwJX',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -333,7 +333,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9yDcvGwNLgwS8rV5AYuupanjnfAoDZksQkDdXagMv5MAfrdSaKhoxqhic4NupSGNXtg1eqoAH7UezJMFoBfNNZHL2wVHjX1hEfU1xhceu8b',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CCyKnUGB4VjMLZYGaSvBijULh1Hd2Uimy9EKy5yUQt9Yexb7s24We2CTM54hWaQZYhCzSR6yEFAs5cQ8TwbaSn53S6HRrmaFkdgqczb85v',
         },
@@ -341,7 +341,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -351,7 +351,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CCyKnUGB4VjMLZYGaSvBijULh1Hd2Uimy9EKy5yUQt9Yexb7s24We2CTM54hWaQZYhCzSR6yEFAs5cQ8TwbaSn53S6HRrmaFkdgqczb85v',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -396,7 +396,7 @@ export const fixtures: Fixture = {
           xpriv:
             'dgpv57bftCH9z6cEAdAY9SCDV9NfVsygaQWdi5LuCXdumz5qUPWnw1S3YBM7PdHXMvA8oSGS6Pbes1xEHMd5Zi2qHVK45y5FKKXzBXsZcTtYmX5',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'dgub8rUhDtD3YFGZTUphBfpBbzvFxSMKQXYLzg87Me2ta78r2SdVLmypBUkkxrrn9RTnchsyiJSkHZyLWxD13ibBiXtuFWktBoDaGaZjQUBLNLs',
         },
@@ -404,7 +404,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -414,7 +414,7 @@ export const fixtures: Fixture = {
           xpub:
             'dgub8rUhDtD3YFGZTUphBfpBbzvFxSMKQXYLzg87Me2ta78r2SdVLmypBUkkxrrn9RTnchsyiJSkHZyLWxD13ibBiXtuFWktBoDaGaZjQUBLNLs',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -459,7 +459,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj',
         },
@@ -467,7 +467,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -477,7 +477,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -522,7 +522,7 @@ export const fixtures: Fixture = {
           xpriv:
             'drkvjRAxdpDmxjUnQKX26VwVQ2mbVjXn67Tr4LZoyobdJyQpPW4ssDTnrcf1zHJui9XqpNuPYxZkHYymoZEowFHHCP6VZncvx9q9UNuerwSVDzr',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'drkpRzJp5yxNJdtLq7YmV6Bfg7NtjycEopwQtnqre1mPRoie9DPWBfCu23U5gVteaKYiMF3gaFd88RnZUfowGYoBoR4sWk4RApm4jrbSAGgQUdq',
         },
@@ -530,7 +530,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -540,7 +540,7 @@ export const fixtures: Fixture = {
           xpub:
             'drkpRzJp5yxNJdtLq7YmV6Bfg7NtjycEopwQtnqre1mPRoie9DPWBfCu23U5gVteaKYiMF3gaFd88RnZUfowGYoBoR4sWk4RApm4jrbSAGgQUdq',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -585,7 +585,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9ymzu53azAnFBpJxehxAZi18cA112AVvbeBwMMjfHBieJwrqZjaV3EBE7k5yJPf7RfYBEJzwGKvZP1Gps312YU6BJvdobsd1CmD1xobGkrR',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CmMJaaUpYLYQJPRkjVAvqwsABqVRdDmxs7Y9k9GqXFdBkBz7Gtjb2VhxzCeYKuXkEzZ23MNRFj9tqjYS5UgvewWpxYmhWuwDiLR84spHS8',
         },
@@ -593,7 +593,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -603,7 +603,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CmMJaaUpYLYQJPRkjVAvqwsABqVRdDmxs7Y9k9GqXFdBkBz7Gtjb2VhxzCeYKuXkEzZ23MNRFj9tqjYS5UgvewWpxYmhWuwDiLR84spHS8',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -614,7 +614,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6D1pK4ozztYgDWaNcvgYjXTQoWNfzSgQY9poZkJWhhbCKYVjQdUmhkRYF6NkLPNzTohQ3KEMm1ZqzZAHTPPQYuDYzVmkXtTLzLYPDhjoUrm',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -625,7 +625,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6Cq877KwJnLWBSAoVoFLwoe7BbPhxxkpBkvEugZRzmWRsGqPJDJU3t8jWFuNWMR5uYLQuYPgypSR2F9HWjVaroCNtRqH43Chwjeox4je1yB',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -680,7 +680,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9ytsf7bk77SoYKsJAvqg3sB9gLDp54YHT8bditZW7L5Y6o914va5v6XwZcf6DAuJ4nAbJAxrtwZo8b1jA9ozd73zBz2pTT1ic533idtEwtJ',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CtE4d8dwV16kowmGxNgR17tEN4JUXG8pMXEXGy7ffcWybU9cTtLTtrRQsDwHkMADcjoXSNeoebv5XAGJg6n7Zh9vz5TWWvUJzKTSdeUFHn',
         },
@@ -688,7 +688,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -698,7 +698,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CtE4d8dwV16kowmGxNgR17tEN4JUXG8pMXEXGy7ffcWybU9cTtLTtrRQsDwHkMADcjoXSNeoebv5XAGJg6n7Zh9vz5TWWvUJzKTSdeUFHn',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -709,7 +709,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6Wu2Ax4NRoLJW1UCNBRMatwYW5Vr7vqgE4SK6FdKssNEUA2NCor8c5oSdMTUgHT3V9yj1LzMLTJpXwCh7hVenJdfhLB9M6qxmi6bcoFSdVd',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -720,7 +720,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6sBMnpX8349mvyqk3Y4U1mTJAeCpY4qGNgMeJejYe1sjPYyVVs6qBDrycdTNd7kHXCZBUxuTB9kojxvHKVU6kS9hsoUeekK1QRBU9nDYtx2',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -770,7 +770,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xqMPAtc6rF1XptQ6QavaQ5fNyJkDgrZ3BLW4qwzMiDKmnRV4jWoDQHFdCzFMCJfXvxNtVcMW3rdD2FGVd54ygV72BVHNDMkr3k1HE3dE6NdQwc8',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xq1vow2yefS81cbgEiWByGtkSSpvaKbitriBYioqhEvBRmRnoHaozKGHmnJCkisCuwv1NebnzGWLsuPwjZZABdb8f42MtkJqekEzqo7q7hUCpvB',
         },
@@ -778,7 +778,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -788,7 +788,7 @@ export const fixtures: Fixture = {
           xpub:
             'xq1vow2yefS81cbgEiWByGtkSSpvaKbitriBYioqhEvBRmRnoHaozKGHmnJCkisCuwv1NebnzGWLsuPwjZZABdb8f42MtkJqekEzqo7q7hUCpvB',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -799,7 +799,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6Wu2Ax4NRoLJW1UCNBRMatwYW5Vr7vqgE4SK6FdKssNEUA2NCor8c5oSdMTUgHT3V9yj1LzMLTJpXwCh7hVenJdfhLB9M6qxmi6bcoFSdVd',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -810,7 +810,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6sBMnpX8349mvyqk3Y4U1mTJAeCpY4qGNgMeJejYe1sjPYyVVs6qBDrycdTNd7kHXCZBUxuTB9kojxvHKVU6kS9hsoUeekK1QRBU9nDYtx2',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -865,7 +865,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9yjgD7qdk99UwHsGUwGeqAy1QpKrYUPuZsb2ApTfE8cv4Nuij5G7HcnCMaxPU1m4bADnR4kqHnJsvW9LHvUcoLcmKLYLzjd3FGJr1CxdxWy',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6Cj2cdNXaWhn9mwjaxofCJujxrALww7kw6WcyCsGnU9twBEsGcaMqR6gCtQ9b3k6awqL2egNaat2btUCVoETYzcmngU9outdn6RA2KxmNEn',
         },
@@ -873,7 +873,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -883,7 +883,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6Cj2cdNXaWhn9mwjaxofCJujxrALww7kw6WcyCsGnU9twBEsGcaMqR6gCtQ9b3k6awqL2egNaat2btUCVoETYzcmngU9outdn6RA2KxmNEn',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -894,7 +894,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6YAzMR6Pck8es9hsWTDoHUw95DS2ajZtmf6k9epK6aUoteJe5LWEtsW6ys97MqeK18CJe2MDYXWaitVDwogT46t6F7uGrHHk9VHzvxoX5in',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -905,7 +905,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6qSFywPULarUNuzKdbWVZwFpYnb2igv9AqLCufRkXwWfexmdhkAgAsosnc3UiYaBNWBHm3DpuCfmwEG9g27X5t6vKGuLq7jvtsmLoCBMw3j',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -984,7 +984,7 @@ export const fixtures: Fixture = {
           xpriv:
             'zprvAdQSgFiAHcXKb1gcktyukXyGZykTBemmPZ9brfYnxqxM2CocMdxy9aPXTbTLv7dvJgWn2Efi4vFSyPbT4QqgarYrs583WCeMXM2q3TUU8FS',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           xpub:
             'zpub6rPo5mF47z5coVm5rvWv7fv181awb7Vckn5Cf3xQXBVKu18kuBHDhNi1Jrb4br6vVD3ZbrnXemEsWJoR18mZwkUdzwD8TQnHDUCGxqZ6swA',
         },
@@ -992,7 +992,7 @@ export const fixtures: Fixture = {
           xpriv:
             'vprv9K7GLAaERuM58PVvbk1sMo7wzVCoPwzZpVXLRBmum93gL5pSqQCAAvZjtmz93nnnYMr9i2FwG2fqrwYLRgJmDDwFjGiamGsbRMJ5Y6siJ8H',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           xpub:
             'vpub5Y6cjg78GGuNLsaPhmYsiw4gYX3HoQiRBiSwDaBXKUafCt9bNwWQiitDk5VZ5BVxYnQdwoTyXSs2JHRPAgjAvtbBrf8ZhDYe2jWAqvZVnsc',
         },
@@ -1000,7 +1000,7 @@ export const fixtures: Fixture = {
           xpriv:
             'Mtpv7RooeEQDUitupgpJcxZnfDwvq8hC24R7GAiscrqFhHHhit96vCNY7yudJgrM841dMbiRUQceC12566XAHHC8Rd1BtnBdokq9tmF7jLLvUdh',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           xpub:
             'Mtub2rz9F1pkisRsSZX8sa4Ajon9GhPP6JymLgpuHqbYdU5JKFLBF7Qy8b1tZ3dccj2fefrAxfrPdVkpCxuWn3g72UctH2bvJRkp6iFmp8aLeRZ',
         },
@@ -1008,7 +1008,7 @@ export const fixtures: Fixture = {
           xpriv:
             'uprv91G7gZkzehuMVxDJTYE6tLivdF8e4rvzSu1LFfKw3b2Qx1Aj8vpoFnHdfUZ3hmi9jsvPifmZ24RTN2KhwB8BfMLTVqaBReibyaFFcTP1s9n',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           xpub:
             'upub5EFU65HtV5TeiSHmZZm7FUffBGy8UKeqp7vw43jYbvZPpoVsgU93oac7Wk3u6moKegAEWtGNF8DehrnHtv21XXEMYRUocHqguyjknFHYfgY',
         },
@@ -1016,7 +1016,7 @@ export const fixtures: Fixture = {
           xpriv:
             'Ltpv7735AbcbmL1gbgDWj2ezvs59rh4RM1oTN2BKTKbfe3146FCPCNFbBBSWfuV9vCJNMXD9LuHpQnqVWpn2hbMhikqPdoGqbS3ptdPoNWEvvgR',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'Ltub2YDQmP391UYeDYvLye9P1SuNJFkcRGN7SYHM8JMxaDnegcPTXHJ2BnYmvHnFnGPGKu2WMuCga6iZV3SDxDMGrRyMcrYEfSPhrpS1EPkC43E',
         },
@@ -1024,7 +1024,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fVU32aAEuEPeH1WYx3LhXtSFZTRaFqjbFNPaJZ9R8fCVja44tSaUPZEKGpMK6McUDkWWMvRiVfKR3Wzei6AmLoTNYHMAZ9KtvVTLZZdhvA',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDCBWBScQPGv4Xk3JSbhw6wYYpayMjb2eAYyArpbSqQTbLDpphHGAetB6VQgVeftLML8vDSUEWcC2xDi3qJJ3YCDChJDvqVzpgoYSuT52MhJ',
         },
@@ -1034,7 +1034,7 @@ export const fixtures: Fixture = {
           xpub:
             'Ltub2YDQmP391UYeDYvLye9P1SuNJFkcRGN7SYHM8JMxaDnegcPTXHJ2BnYmvHnFnGPGKu2WMuCga6iZV3SDxDMGrRyMcrYEfSPhrpS1EPkC43E',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1045,7 +1045,7 @@ export const fixtures: Fixture = {
           xpub:
             'Mtub2rz9F1pkisRsSZX8sa4Ajon9GhPP6JymLgpuHqbYdU5JKFLBF7Qy8b1tZ3dccj2fefrAxfrPdVkpCxuWn3g72UctH2bvJRkp6iFmp8aLeRZ',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -1056,7 +1056,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6rPo5mF47z5coVm5rvWv7fv181awb7Vckn5Cf3xQXBVKu18kuBHDhNi1Jrb4br6vVD3ZbrnXemEsWJoR18mZwkUdzwD8TQnHDUCGxqZ6swA',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -1111,7 +1111,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9zG5s8VhyRCaktqFMWHHkaxX1XdgDsD2GjX31daogFTCcer54yTtWroAXRAHZV6GuuiTSUfNheduV4i8rJEJ45QGcCrfKyCwmbD4zaLp9Y7',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6DFSGe2bonksyNuiTXpJ7iuFZZUAdKvsdxSdp1zREazBVTBDcWn94f7eNg5MN148WHsaUfG3Mmmqa6nBi1VCde1t7wM3NA3993CcjChk1g5',
         },
@@ -1119,7 +1119,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JDr5AGu',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCaq6qME',
         },
@@ -1129,7 +1129,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6DFSGe2bonksyNuiTXpJ7iuFZZUAdKvsdxSdp1zREazBVTBDcWn94f7eNg5MN148WHsaUfG3Mmmqa6nBi1VCde1t7wM3NA3993CcjChk1g5',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1140,7 +1140,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6X46SconPpL9QhXPnMGuPLB9jYai7nrHz7ki4zq3awHb462iPSG5eV19oBWv22RWt69npsi75XGcANsevtTWE8YFgqpygrGUPnEKp6vty5v',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -1151,7 +1151,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6qdhcNVVLJ2t8kLzGLzeaiJv7EahaRBsXmu1yVPyXHvMdFmS4d7JSi5aS6mc1oz5k6DZN781Ffn3GAs3r2FJnCPSw5nti63s3c9EDg2u7MS',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -1210,7 +1210,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9ydzpAw8scxgS53bvJyqSwDvfxDQZZtaJV98SYjZto3Pg7MCsPBjCcYqUtnWPRNayEXUcSYZDvXux545bHZwda7YUWvReJiRkx38VXathgK',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6CdMDgU2hzWyeZ852LWqp5AfDz3ty2cRfi4jEw9BT8aNYugMQvVykQsKLARZdbqKKp7yTviJdL1N9saYLmJNKD1rwVAwLTmU8r8qKeoyG4R',
         },
@@ -1218,7 +1218,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -1228,7 +1228,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6CdMDgU2hzWyeZ852LWqp5AfDz3ty2cRfi4jEw9BT8aNYugMQvVykQsKLARZdbqKKp7yTviJdL1N9saYLmJNKD1rwVAwLTmU8r8qKeoyG4R',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1275,7 +1275,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9xwq8XoNMYibm1tgqx9MknBEhV2piDRtYrVLdbRFHaQiYc8Y3yxhWVBui2Pcw6GK1GjhMMsY9qnJAAFEW5QhvvQP8wCyBRMnnGCSADhBBY5',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6BwBY3LGBvGtyVy9wygN7v7yFWsK7g9jv5QwRyprquwhRQTgbXGx4HWPZHRnF5ueji94Dztce4k3RJnt2ir3xWBS7y6bDk8ryS8vKXyoYPL',
         },
@@ -1283,7 +1283,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -1293,7 +1293,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6BwBY3LGBvGtyVy9wygN7v7yFWsK7g9jv5QwRyprquwhRQTgbXGx4HWPZHRnF5ueji94Dztce4k3RJnt2ir3xWBS7y6bDk8ryS8vKXyoYPL',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1305,7 +1305,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6Wu2Ax4NRoLJW1UCNBRMatwYW5Vr7vqgE4SK6FdKssNEUA2NCor8c5oSdMTUgHT3V9yj1LzMLTJpXwCh7hVenJdfhLB9M6qxmi6bcoFSdVd',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -1317,7 +1317,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6sBMnpX8349mvyqk3Y4U1mTJAeCpY4qGNgMeJejYe1sjPYyVVs6qBDrycdTNd7kHXCZBUxuTB9kojxvHKVU6kS9hsoUeekK1QRBU9nDYtx2',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,
@@ -1373,7 +1373,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9xywTsqYa9uDLdJs8QpXf7xwRWgPw4rq5FtkcShsDoZTqfNQjVQ3dDCdyedXX3FqB18U8e8PfVMeFqkhzPGseKVMDjGe5rPdiUXMxy7BQNJ',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6ByHsPNSQXTWZ7PLESMY2FufyYWtLXagSUpMQq7Un96SiThZH2iJB1X7pwviH1WtKVeDP6K8d6xxFzzoaFzF3s8BKCZx8oEDdDkNnp4owAZ',
         },
@@ -1381,7 +1381,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fPDJN9UQqg6pFsQsrVxTwHZmXLvHpfGGcsCA9rtnatUgVtBKxhtFeqiyaYKSWydunKpjhvgJf6PwTwgirwuCbFq8YKgpQiaVJf3JCrNmkR',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
         },
@@ -1391,7 +1391,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6ByHsPNSQXTWZ7PLESMY2FufyYWtLXagSUpMQq7Un96SiThZH2iJB1X7pwviH1WtKVeDP6K8d6xxFzzoaFzF3s8BKCZx8oEDdDkNnp4owAZ',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1403,7 +1403,7 @@ export const fixtures: Fixture = {
           xpub:
             'tpubDC5FSnBiZDMmhiuCmWAYsLwgLYrrT9rAqvTySfuCCrgsWz8wxMXUS9Tb9iVMvcRbvFcAHGkMD5Kx8koh4GquNGNTfohfk7pgjhaPCdXpoba',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1514,7 +1514,7 @@ export const fixtures: Fixture = {
           xpriv:
             'zprvAdG4iTXWBoARxkkzNpNh8r6Qag3irQB8PzEMkAFeTRXxHpbF9z4QgEvBRmfvqWvGp42t42nvgGpNgYSJA9iefm1yYNZKEm7z6qUWCroSQnE',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           xpub:
             'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
         },
@@ -1522,7 +1522,7 @@ export const fixtures: Fixture = {
           xpriv:
             'vprv9K7GLAaERuM58PVvbk1sMo7wzVCoPwzZpVXLRBmum93gL5pSqQCAAvZjtmz93nnnYMr9i2FwG2fqrwYLRgJmDDwFjGiamGsbRMJ5Y6siJ8H',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           xpub:
             'vpub5Y6cjg78GGuNLsaPhmYsiw4gYX3HoQiRBiSwDaBXKUafCt9bNwWQiitDk5VZ5BVxYnQdwoTyXSs2JHRPAgjAvtbBrf8ZhDYe2jWAqvZVnsc',
         },
@@ -1530,7 +1530,7 @@ export const fixtures: Fixture = {
           xpriv:
             'yprvAHwhK6RbpuS3dgCYHM5jc2ZvEKd7Bi61u9FVhYMpgMSuZS613T1xxQeKTffhrHY79hZ5PsskBjcc6C2V7DrnsMsNaGDaWev3GLRQRgV7hxF',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           xpub:
             'ypub6Ww3ibxVfGzLrAH1PNcjyAWenMTbbAosGNB6VvmSEgytSER9azLDWCxoJwW7Ke7icmizBMXrzBx9979FfaHxHcrArf3zbeJJJUZPf663zsP',
         },
@@ -1538,7 +1538,7 @@ export const fixtures: Fixture = {
           xpriv:
             'uprv91G7gZkzehuMVxDJTYE6tLivdF8e4rvzSu1LFfKw3b2Qx1Aj8vpoFnHdfUZ3hmi9jsvPifmZ24RTN2KhwB8BfMLTVqaBReibyaFFcTP1s9n',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           xpub:
             'upub5EFU65HtV5TeiSHmZZm7FUffBGy8UKeqp7vw43jYbvZPpoVsgU93oac7Wk3u6moKegAEWtGNF8DehrnHtv21XXEMYRUocHqguyjknFHYfgY',
         },
@@ -1546,7 +1546,7 @@ export const fixtures: Fixture = {
           xpriv:
             'xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj',
         },
@@ -1554,7 +1554,7 @@ export const fixtures: Fixture = {
           xpriv:
             'tprv8fVU32aAEuEPeH1WYx3LhXtSFZTRaFqjbFNPaJZ9R8fCVja44tSaUPZEKGpMK6McUDkWWMvRiVfKR3Wzei6AmLoTNYHMAZ9KtvVTLZZdhvA',
           network: NetworkEnum.Testnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           xpub:
             'tpubDCBWBScQPGv4Xk3JSbhw6wYYpayMjb2eAYyArpbSqQTbLDpphHGAetB6VQgVeftLML8vDSUEWcC2xDi3qJJ3YCDChJDvqVzpgoYSuT52MhJ',
         },
@@ -1564,7 +1564,7 @@ export const fixtures: Fixture = {
           xpub:
             'xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Legacy,
+          purpose: BIP43PurposeTypeEnum.Legacy,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2pkh,
@@ -1575,7 +1575,7 @@ export const fixtures: Fixture = {
           xpub:
             'ypub6Ww3ibxVfGzLrAH1PNcjyAWenMTbbAosGNB6VvmSEgytSER9azLDWCxoJwW7Ke7icmizBMXrzBx9979FfaHxHcrArf3zbeJJJUZPf663zsP',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.WrappedSegwit,
+          purpose: BIP43PurposeTypeEnum.WrappedSegwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkhp2sh,
@@ -1586,7 +1586,7 @@ export const fixtures: Fixture = {
           xpub:
             'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
           network: NetworkEnum.Mainnet,
-          type: BIP43PurposeTypeEnum.Segwit,
+          purpose: BIP43PurposeTypeEnum.Segwit,
           bip44ChangeIndex: 0,
           bip44AddressIndex: 0,
           scriptType: ScriptTypeEnum.p2wpkh,

@@ -27,11 +27,11 @@ describe('altcoin test fixtures', () => {
       })
     })
     f.xprivToXPubTests.forEach((j) => {
-      it(`${f.name} bip32 xpriv to xpub ${j.network} ${j.type}`, () => {
+      it(`${f.name} bip32 xpriv to xpub ${j.network} ${j.purpose}`, () => {
         const resultLegacy = xprivToXPub({
           xpriv: j.xpriv,
           network: j.network,
-          type: j.type,
+          purpose: j.purpose,
           coin: f.name,
         })
         expect(resultLegacy).to.equals(j.xpub)
@@ -42,7 +42,7 @@ describe('altcoin test fixtures', () => {
         const pubkey = xpubToPubkey({
           xpub: j.xpub,
           network: j.network,
-          type: j.type,
+          purpose: j.purpose,
           bip44ChangeIndex: 0,
           bip44AddressIndex: j.bip44AddressIndex,
           coin: f.name,

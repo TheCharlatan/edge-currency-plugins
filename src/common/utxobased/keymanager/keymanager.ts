@@ -77,14 +77,14 @@ export interface SeedOrMnemonicToXPrivArgs {
 export interface XPrivToXPubArgs {
   xpriv: string
   network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+  purpose: BIP43PurposeTypeEnum
   coin: string
 }
 
 export interface XPrivToPrivateKeyArgs {
   xpriv: string
   network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+  purpose: BIP43PurposeTypeEnum
   bip44ChangeIndex: 0 | 1
   bip44AddressIndex: number
   coin: string
@@ -93,7 +93,7 @@ export interface XPrivToPrivateKeyArgs {
 export interface XPubToPubkeyArgs {
   xpub: string
   network: NetworkEnum
-  type: BIP43PurposeTypeEnum
+  purpose: BIP43PurposeTypeEnum
   bip44ChangeIndex: 0 | 1
   bip44AddressIndex: number
   coin: string
@@ -463,7 +463,7 @@ export function xprivToXPub(args: XPrivToXPubArgs): string {
   const network: BitcoinJSNetwork = bip32NetworkFromCoin({
     networkType: args.network,
     coinString: args.coin,
-    sigType: args.type,
+    sigType: args.purpose,
   })
   const coin = getCoinFromString(args.coin)
   const bip32FromBase58Func = coin.bip32FromBase58Func ?? bip32.fromBase58
@@ -485,7 +485,7 @@ export function xpubToPubkey(args: XPubToPubkeyArgs): string {
   const network: BitcoinJSNetwork = bip32NetworkFromCoin({
     networkType: args.network,
     coinString: args.coin,
-    sigType: args.type,
+    sigType: args.purpose,
   })
   const coin = getCoinFromString(args.coin)
   const bip32FromBase58Func = coin.bip32FromBase58Func ?? bip32.fromBase58
@@ -799,7 +799,7 @@ export function xprivToPrivateKey(args: XPrivToPrivateKeyArgs): string {
   const network: BitcoinJSNetwork = bip32NetworkFromCoin({
     networkType: args.network,
     coinString: args.coin,
-    sigType: args.type,
+    sigType: args.purpose,
   })
   const coin = getCoinFromString(args.coin)
   const bip32FromBase58Func = coin.bip32FromBase58Func ?? bip32.fromBase58

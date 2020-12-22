@@ -48,7 +48,7 @@ describe('bitcoin from bip32 seed to private key', () => {
     const privateKey = xprivToPrivateKey({
       xpriv,
       network: NetworkEnum.Mainnet,
-      type: BIP43PurposeTypeEnum.Legacy,
+      purpose: BIP43PurposeTypeEnum.Legacy,
       bip44ChangeIndex: 0,
       bip44AddressIndex: 0,
       coin: 'bitcoin',

@@ -77,7 +77,7 @@ export function makeAccount(xpub: string, config: IAccountConfig): Account {
       return xpubToPubkey({
         xpub: xpub,
         network: account.networkType,
-        type: account.purpose,
+        purpose: account.purpose,
         bip44AddressIndex: p.index,
         bip44ChangeIndex: p.change,
         coin: account.coinName,
@@ -126,7 +126,7 @@ export function makePrivateAccount(
   const xpub = xprivToXPub({
     xpriv,
     network: config.networkType,
-    type: config.purpose,
+    purpose: config.purpose,
     coin: config.coinName,
   })
 
@@ -142,7 +142,7 @@ export function makePrivateAccount(
       return xprivToPrivateKey({
         xpriv,
         network: account.networkType,
-        type: account.purpose,
+        purpose: account.purpose,
         coin: account.coinName,
         bip44ChangeIndex: p.change,
         bip44AddressIndex: p.index,
@@ -161,7 +161,7 @@ export function makePrivateAccountFromMnemonic(
     seed: mnemonic,
     network: config.networkType,
     coin: config.coinName,
-    type: config.purpose,
+    purpose: config.purpose,
     path: path.toAccount(),
   })
   return makePrivateAccount(xprv, config)
