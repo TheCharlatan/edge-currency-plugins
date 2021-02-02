@@ -58,6 +58,7 @@ export function makeUtxoWalletTools(config: WalletToolsConfig): UTXOPluginWallet
       network
     })
   }
+  console.log(xpubKeys)
 
   const fns: UTXOPluginWalletTools = {
     getPubkey(args: AddressPath): string {

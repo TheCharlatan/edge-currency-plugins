@@ -26,7 +26,7 @@ export interface UtxoEngineState {
   markAddressUsed(address: string): Promise<void>
 }
 
-interface UtxoEngineStateConfig extends EngineConfig {
+export interface UtxoEngineStateConfig extends EngineConfig {
   walletTools: UTXOPluginWalletTools
   processor: Processor
   blockBook: BlockBook
