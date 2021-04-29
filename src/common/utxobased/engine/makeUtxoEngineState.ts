@@ -273,39 +273,45 @@ interface FormatArgs extends CommonArgs, ShortPath {}
 
 interface SetLookAheadArgs extends FormatArgs {}
 
+const setLookAheadInner = async (args: SetLookAheadArgs): Promise<void> => {
+  const { format, branch, currencyInfo, walletTools, processor } = args
+
+  const partialPath: Omit<AddressPath, 'addressIndex'> = {
+    format,
+    changeIndex: branch
+  }
+
+  const getLastUsed = async (): Promise<number> =>
+    await findLastUsedIndex({ ...args, ...partialPath })
+  const getAddressCount = (): number =>
+    processor.getNumAddressesFromPathPartition(partialPath)
+
+  let lastUsed = await getLastUsed()
+  let addressCount = getAddressCount()
+  while (lastUsed + currencyInfo.gapLimit > addressCount) {
+    const path: AddressPath = {
+      ...partialPath,
+      addressIndex: addressCount
+    }
+    const { address } = walletTools.getAddress(path)
+    const scriptPubkey = walletTools.addressToScriptPubkey(address)
+    await saveAddress({
+      ...args,
+      scriptPubkey,
+      path
+    })
+    addToAddressSubscribeCache(args, address, { format, branch })
+
+    lastUsed = await getLastUsed()
+    addressCount = getAddressCount()
+  }
+}
+
 const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
-  const { format, branch, currencyInfo, walletTools, processor, mutexor } = args
+  const { format, branch, mutexor } = args
 
   await mutexor(`setLookAhead-${format}-${branch}`).runExclusive(async () => {
-    const partialPath: Omit<AddressPath, 'addressIndex'> = {
-      format,
-      changeIndex: branch
-    }
-
-    const getLastUsed = async (): Promise<number> =>
-      await findLastUsedIndex({ ...args, ...partialPath })
-    const getAddressCount = (): number =>
-      processor.getNumAddressesFromPathPartition(partialPath)
-
-    let lastUsed = await getLastUsed()
-    let addressCount = getAddressCount()
-    while (lastUsed + currencyInfo.gapLimit > addressCount) {
-      const path: AddressPath = {
-        ...partialPath,
-        addressIndex: addressCount
-      }
-      const { address } = walletTools.getAddress(path)
-      const scriptPubkey = walletTools.addressToScriptPubkey(address)
-      await saveAddress({
-        ...args,
-        scriptPubkey,
-        path
-      })
-      addToAddressSubscribeCache(args, address, { format, branch })
-
-      lastUsed = await getLastUsed()
-      addressCount = getAddressCount()
-    }
+    await setLookAheadInner(args)
   })
 }
 
@@ -556,30 +562,33 @@ interface SaveAddressArgs extends CommonArgs {
   used?: boolean
 }
 
-const saveAddress = async (args: SaveAddressArgs): Promise<void> => {
-  const { scriptPubkey, path, used = false, processor, mutexor } = args
-
-  await mutexor('saveAddress').runExclusive(async () => {
-    try {
-      await processor.saveAddress({
-        scriptPubkey,
+const saveAddressInner = async (args: SaveAddressArgs): Promise<void> => {
+  const { scriptPubkey, path, used = false, processor } = args
+  try {
+    await processor.saveAddress({
+      scriptPubkey,
+      path,
+      used,
+      networkQueryVal: 0,
+      lastQuery: 0,
+      lastTouched: 0,
+      balance: '0'
+    })
+  } catch (err) {
+    if (err.message === 'Address already exists.') {
+      await processor.updateAddressByScriptPubkey(scriptPubkey, {
         path,
-        used,
-        networkQueryVal: 0,
-        lastQuery: 0,
-        lastTouched: 0,
-        balance: '0'
+        used
       })
-    } catch (err) {
-      if (err.message === 'Address already exists.') {
-        await processor.updateAddressByScriptPubkey(scriptPubkey, {
-          path,
-          used
-        })
-      } else {
-        throw err
-      }
+    } else {
+      throw err
     }
+  }
+}
+
+const saveAddress = async (args: SaveAddressArgs): Promise<void> => {
+  await args.mutexor('saveAddress').runExclusive(async () => {
+    await saveAddressInner(args)
   })
 }
 
@@ -841,31 +850,39 @@ interface ProcessAddressUtxosArgs extends CommonCacheState, CommonArgs {
   address: string
 }
 
+const processAddressUtxosInner = async (
+  args: ProcessAddressUtxosArgs,
+  utxos: IAccountUTXO[],
+  scriptPubkey: string
+): Promise<void> => {
+  const { processor, taskCache, path } = args
+  const { rawUtxosCache } = taskCache
+  const addressData = await processor.fetchAddressByScriptPubkey(scriptPubkey)
+  if (addressData == null || addressData.path == null) {
+    return
+  }
+  for (const utxo of utxos) {
+    rawUtxosCache.set(utxo, {
+      processing: false,
+      requiredCount: utxos.length,
+      path,
+      // TypeScript yells otherwise
+      address: { ...addressData, path: addressData.path }
+    })
+  }
+}
+
 const processAddressUtxos = async (
   args: ProcessAddressUtxosArgs
 ): Promise<WsTask<IAccountUTXO[]>> => {
-  const { address, walletTools, processor, taskCache, path, mutexor } = args
-  const { utxosCache, rawUtxosCache } = taskCache
+  const { address, walletTools, taskCache, path, mutexor } = args
+  const { utxosCache } = taskCache
   const deferredIAccountUTXOs = new Deferred<IAccountUTXO[]>()
   deferredIAccountUTXOs.promise
     .then(async (utxos: IAccountUTXO[]) => {
       const scriptPubkey = walletTools.addressToScriptPubkey(address)
       await mutexor(`utxos-${scriptPubkey}`).runExclusive(async () => {
-        const addressData = await processor.fetchAddressByScriptPubkey(
-          scriptPubkey
-        )
-        if (addressData == null || addressData.path == null) {
-          return
-        }
-        for (const utxo of utxos) {
-          rawUtxosCache.set(utxo, {
-            processing: false,
-            requiredCount: utxos.length,
-            path,
-            // TypeScript yells otherwise
-            address: { ...addressData, path: addressData.path }
-          })
-        }
+        await processAddressUtxosInner(args, utxos, scriptPubkey)
       })
     })
     .catch(() => {
@@ -887,66 +904,66 @@ interface ProcessUtxoTransactionArgs extends CommonArgs {
   path: ShortPath
 }
 
+const processUtxoTransactionsInner = async (
+  args: ProcessUtxoTransactionArgs
+): Promise<void> => {
+  const { address, utxos, currencyInfo, processor, emitter, log } = args
+
+  let newBalance = '0'
+  let oldBalance = '0'
+  const currentUtxos = await processor.fetchUtxosByScriptPubkey(
+    address.scriptPubkey
+  )
+  const currentUtxoIds = new Set(
+    currentUtxos.map(({ id, value }) => {
+      oldBalance = bs.add(oldBalance, value)
+      return id
+    })
+  )
+
+  const toAdd = new Set<IUTXO>()
+  for (const utxo of utxos) {
+    if (currentUtxoIds.has(utxo.id)) {
+      currentUtxoIds.delete(utxo.id)
+    } else {
+      toAdd.add(utxo)
+    }
+  }
+
+  for (const utxo of toAdd) {
+    await processor.saveUtxo(utxo)
+    newBalance = bs.add(newBalance, utxo.value)
+  }
+  for (const id of currentUtxoIds) {
+    const utxo = await processor.removeUtxo(id)
+    newBalance = bs.sub(newBalance, utxo.value)
+  }
+
+  const diff = bs.sub(newBalance, oldBalance)
+  if (diff !== '0') {
+    log({ address, diff })
+    emitter.emit(
+      EngineEvent.ADDRESS_BALANCE_CHANGED,
+      currencyInfo.currencyCode,
+      diff
+    )
+
+    await processor.updateAddressByScriptPubkey(address.scriptPubkey, {
+      balance: newBalance,
+      used: true
+    })
+    await setLookAhead({ ...args, ...args.path })
+  }
+}
+
 const processUtxoTransactions = async (
   args: ProcessUtxoTransactionArgs
 ): Promise<void> => {
-  const {
-    address,
-    utxos,
-    currencyInfo,
-    processor,
-    emitter,
-    mutexor,
-    log
-  } = args
+  const { address, mutexor } = args
 
   await mutexor(`utxos-transactions-${address.scriptPubkey}`).runExclusive(
     async () => {
-      let newBalance = '0'
-      let oldBalance = '0'
-      const currentUtxos = await processor.fetchUtxosByScriptPubkey(
-        address.scriptPubkey
-      )
-      const currentUtxoIds = new Set(
-        currentUtxos.map(({ id, value }) => {
-          oldBalance = bs.add(oldBalance, value)
-          return id
-        })
-      )
-
-      const toAdd = new Set<IUTXO>()
-      for (const utxo of utxos) {
-        if (currentUtxoIds.has(utxo.id)) {
-          currentUtxoIds.delete(utxo.id)
-        } else {
-          toAdd.add(utxo)
-        }
-      }
-
-      for (const utxo of toAdd) {
-        await processor.saveUtxo(utxo)
-        newBalance = bs.add(newBalance, utxo.value)
-      }
-      for (const id of currentUtxoIds) {
-        const utxo = await processor.removeUtxo(id)
-        newBalance = bs.sub(newBalance, utxo.value)
-      }
-
-      const diff = bs.sub(newBalance, oldBalance)
-      if (diff !== '0') {
-        log({ address, diff })
-        emitter.emit(
-          EngineEvent.ADDRESS_BALANCE_CHANGED,
-          currencyInfo.currencyCode,
-          diff
-        )
-
-        await processor.updateAddressByScriptPubkey(address.scriptPubkey, {
-          balance: newBalance,
-          used: true
-        })
-        await setLookAhead({ ...args, ...args.path })
-      }
+      await processUtxoTransactionsInner(args)
     }
   )
 }
