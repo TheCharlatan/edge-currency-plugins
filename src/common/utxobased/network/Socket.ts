@@ -255,8 +255,11 @@ export function makeSocket(uri: string, config: SocketConfig): Socket {
           }
         }
         const message = pendingMessages.get(id)
+        pendingMessages.forEach((message, id) => {
+          log(`currently pending message:`, message, id)
+        })
         if (message == null) {
-          throw new Error(`Bad response id in ${messageJson}`)
+          throw new Error(`Bad response id in ${messageJson}, pending`)
         }
         pendingMessages.delete(id)
         const { error } = json

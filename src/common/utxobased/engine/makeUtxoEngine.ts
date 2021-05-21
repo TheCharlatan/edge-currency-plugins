@@ -100,6 +100,7 @@ export async function makeUtxoEngine(
 
   const fns: EdgeCurrencyEngine = {
     async startEngine(): Promise<void> {
+      log('starting engine')
       emitter.emit(
         EngineEvent.WALLET_BALANCE_CHANGED,
         config.currencyInfo.currencyCode,
@@ -107,11 +108,14 @@ export async function makeUtxoEngine(
       )
       await fees.start()
       await state.start()
+      log('engine started')
     },
 
     async killEngine(): Promise<void> {
+      log('stopping engine')
       await state.stop()
       fees.stop()
+      log('engine stopped')
     },
 
     getBalance(_opts: EdgeCurrencyCodeOptions): string {

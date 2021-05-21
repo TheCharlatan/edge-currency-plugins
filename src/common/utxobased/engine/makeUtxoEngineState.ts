@@ -212,17 +212,21 @@ export function makeUtxoEngineState(
   return {
     processedPercent,
     async start(): Promise<void> {
+      log('starting engine state')
       processedCount = 0
       processedPercent = 0
 
       await run()
       serverStates.refillServers()
+      log('started engine state')
     },
 
     async stop(): Promise<void> {
+      log('stopping engine state')
       serverStates.stop()
       clearTaskCache()
       running = false
+      log('stopped engine state')
     },
 
     async getFreshAddress(branch = 0): Promise<EdgeFreshAddress> {
@@ -353,6 +357,7 @@ interface SetLookAheadArgs extends FormatArgs {}
 
 const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
   const { format, branch, currencyInfo, walletTools, processor } = args
+  args.log('in set lookahead')
 
   const partialPath: Omit<AddressPath, 'addressIndex'> = {
     format,
@@ -395,6 +400,12 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
   }
 
   addToAddressSubscribeCache(args, addresses, { format, branch })
+  args.log(
+    'added the following to the queue:',
+    args.taskCache.addressSubscribeCache.size,
+    args.taskCache.addressWatching,
+    args.taskCache.blockWatching
+  )
 }
 
 const addToAddressSubscribeCache = (
@@ -452,6 +463,16 @@ export const pickNextTask = async (
     transactionsCache,
     updateTransactionsCache
   } = taskCache
+
+  args.log(
+    taskCache.addressWatching,
+    taskCache.blockWatching,
+    addressSubscribeCache.size,
+    utxosCache.size,
+    processedUtxosCache.size,
+    transactionsCache.size,
+    updateTransactionsCache.size
+  )
 
   const serverState = serverStates.getServerState(uri)
   if (serverState == null) return
