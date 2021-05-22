@@ -88,7 +88,7 @@ export function makeUtxoEngineState(
     addressSubscribeCache: {},
     transactionsCache: {},
     utxosCache: {},
-    rawUtxosCache: new Map(),
+    rawUtxosCache: {},
     processedUtxosCache: {},
     updateTransactionsCache: {}
   }
@@ -99,7 +99,7 @@ export function makeUtxoEngineState(
     taskCache.addressSubscribeCache = {}
     taskCache.transactionsCache = {}
     taskCache.utxosCache = {}
-    taskCache.rawUtxosCache.clear()
+    taskCache.rawUtxosCache = {}
     taskCache.processedUtxosCache = {}
     taskCache.updateTransactionsCache = {}
   }
@@ -319,7 +319,7 @@ interface TaskCache {
   blockWatching: boolean
   addressSubscribeCache: AddressSubscribeCache
   utxosCache: UtxosCache
-  rawUtxosCache: Map<IAccountUTXO, RawUtxoCacheState>
+  rawUtxosCache: RawUtxoCache
   processedUtxosCache: ProcessedUtxoCache
   transactionsCache: AddressTransactionCache
   updateTransactionsCache: UpdateTransactionCache
@@ -342,11 +342,13 @@ interface ProcessedUtxoCache {
     path: ShortPath
   }
 }
-interface RawUtxoCacheState {
-  processing: boolean
-  path: ShortPath
-  address: Required<IAddress>
-  requiredCount: number
+interface RawUtxoCache {
+  [key: string]: {
+    processing: boolean
+    path: ShortPath
+    address: Required<IAddress>
+    requiredCount: number
+  }
 }
 interface AddressTransactionCache {
   [key: string]: {
@@ -463,6 +465,15 @@ export const pickNextTask = async (
     updateTransactionsCache
   } = taskCache
 
+  console.log(
+    Object.keys(addressSubscribeCache).length,
+    Object.keys(utxosCache).length,
+    Object.keys(rawUtxosCache).length,
+    Object.keys(processedUtxosCache).length,
+    Object.keys(transactionsCache).length,
+    Object.keys(updateTransactionsCache).length
+  )
+
   const serverState = serverStates.getServerState(uri)
   if (serverState == null) return
 
@@ -487,7 +498,10 @@ export const pickNextTask = async (
   }
 
   // Loop unparsed utxos, some require a network call to get the full tx data
-  for (const [utxo, state] of rawUtxosCache) {
+  for (const utxoString of Object.keys(rawUtxosCache)) {
+    const state = rawUtxosCache[utxoString]
+    const utxo: IAccountUTXO = JSON.parse(utxoString)
+    if (utxo == null) continue
     if (!state.processing) {
       // check if we need to fetch additional network content for legacy purpose type
       const purposeType = currencyFormatToPurposeType(state.path.format)
@@ -499,7 +513,8 @@ export const pickNextTask = async (
         if (!serverStates.serverCanGetTx(uri, utxo.txid)) return
       }
       state.processing = true
-      rawUtxosCache.delete(utxo)
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete rawUtxosCache[utxoString]
       const wsTask = await processRawUtxo({
         ...args,
         ...state,
@@ -1012,13 +1027,13 @@ const processAddressUtxos = async (
         return
       }
       for (const utxo of utxos) {
-        rawUtxosCache.set(utxo, {
+        rawUtxosCache[JSON.stringify(utxo)] = {
           processing: false,
           requiredCount: utxos.length,
           path,
           // TypeScript yells otherwise
           address: { ...addressData, path: addressData.path }
-        })
+        }
       }
     })
     .catch(() => {
@@ -1090,7 +1105,9 @@ const processUtxoTransactions = async (
   }
 }
 
-interface ProcessRawUtxoArgs extends FormatArgs, RawUtxoCacheState {
+interface ProcessRawUtxoArgs extends FormatArgs {
+  path: ShortPath
+  requiredCount: number
   utxo: IAccountUTXO
   id: string
   address: Required<IAddress>
@@ -1162,12 +1179,12 @@ const processRawUtxo = async (
           .catch(e => {
             // If something went wrong, add the UTXO back to the queue
             log('error in processed utxos cache, re-adding utxo to cache:', e)
-            rawUtxosCache.set(utxo, {
+            rawUtxosCache[JSON.stringify(utxo)] = {
               processing: false,
               path,
               address,
               requiredCount
-            })
+            }
           })
         return {
           ...transactionMessage(utxo.txid),
