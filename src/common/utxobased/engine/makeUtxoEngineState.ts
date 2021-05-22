@@ -1071,7 +1071,7 @@ const processUtxoTransactions = async (
   )
 
   const toAdd = new Set<IUTXO>()
-  for (const utxo of utxos) {
+  for (const utxo of Array.from(utxos)) {
     if (currentUtxoIds.has(utxo.id)) {
       currentUtxoIds.delete(utxo.id)
     } else {
@@ -1079,11 +1079,11 @@ const processUtxoTransactions = async (
     }
   }
 
-  for (const utxo of toAdd) {
+  for (const utxo of Array.from(toAdd)) {
     await processor.saveUtxo(utxo)
     newBalance = bs.add(newBalance, utxo.value)
   }
-  for (const id of currentUtxoIds) {
+  for (const id of Array.from(currentUtxoIds)) {
     const utxo = await processor.removeUtxo(id)
     newBalance = bs.sub(newBalance, utxo.value)
   }
