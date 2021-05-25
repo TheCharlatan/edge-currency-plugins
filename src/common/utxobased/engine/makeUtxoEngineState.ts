@@ -15,6 +15,7 @@ import {
   EngineCurrencyInfo,
   NetworkEnum
 } from '../../plugin/types'
+import { removeItem } from '../../plugin/utils'
 import { Processor } from '../db/makeProcessor'
 import { IAddress, IProcessorTransaction, IUTXO } from '../db/types'
 import { BIP43PurposeTypeEnum, ScriptTypeEnum } from '../keymanager/keymanager'
@@ -378,13 +379,16 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
 
   let lastUsed = await getLastUsed()
   let addressCount = getAddressCount()
-  const addresses = new Set<string>()
 
   if (Object.keys(args.taskCache.addressSubscribeCache).length === 0) {
     for (let addressIndex = 0; addressIndex <= addressCount; addressIndex++) {
-      addresses.add(
+      args.taskCache.addressSubscribeCache[
         walletTools.getAddress({ ...partialPath, addressIndex }).address
-      )
+      ] = {
+        path: { format, branch },
+        processing: false
+      }
+      args.taskCache.addressWatching = false
     }
   }
 
@@ -400,27 +404,15 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
       scriptPubkey,
       path
     })
-    addresses.add(address)
+    args.taskCache.addressSubscribeCache[address] = {
+      path: { format, branch },
+      processing: false
+    }
+    args.taskCache.addressWatching = false
 
     lastUsed = await getLastUsed()
     addressCount = getAddressCount()
   }
-
-  addToAddressSubscribeCache(args, addresses, { format, branch })
-}
-
-const addToAddressSubscribeCache = (
-  args: CommonArgs,
-  addresses: Set<string>,
-  path: ShortPath
-): void => {
-  addresses.forEach(address => {
-    args.taskCache.addressSubscribeCache[address] = {
-      path,
-      processing: false
-    }
-    args.taskCache.addressWatching = false
-  })
 }
 
 const addToTransactionCache = async (
@@ -481,6 +473,10 @@ export const pickNextTask = async (
           utxos: state.utxos,
           path: state.path
         })
+        taskCache.processedUtxosCache = removeItem(
+          processedUtxosCache,
+          scriptPubkey
+        )
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete processedUtxosCache[scriptPubkey]
         return true
