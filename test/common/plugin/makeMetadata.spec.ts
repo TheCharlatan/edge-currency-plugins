@@ -9,6 +9,7 @@ import {
   EngineEvent
 } from '../../../src/common/plugin/makeEngineEmitter'
 import { makeMetadata, Metadata } from '../../../src/common/plugin/makeMetadata'
+import { makeProcessor } from '../../../src/common/utxobased/db/makeProcessor'
 
 chai.should()
 chai.use(chaiAsPromised)
@@ -21,13 +22,20 @@ describe('makeMetadata', () => {
   let disklet: Disklet
   let metadata: Metadata
   let log: EdgeLog
+  const processorDisklet = makeMemoryDisklet()
   const emitter = new EngineEmitter()
 
   before(async () => {
+    const processor = await makeProcessor({
+      disklet: processorDisklet,
+      emitter
+    })
+
     disklet = makeMemoryDisklet(memory)
     metadata = await makeMetadata({
       disklet,
       emitter,
+      processor,
       log
     })
   })

@@ -176,9 +176,7 @@ export async function makeProcessor(
           scriptPubkey,
           data: { used: true }
         })
-      } catch (_err) {
-        console.log('just')
-      }
+      } catch (_err) {}
     },
 
     async getUsedAddress(scriptPubkey: string): Promise<boolean> {

@@ -74,6 +74,7 @@ export interface UtxoEngineStateConfig extends EngineConfig {
 export function makeUtxoEngineState(
   config: UtxoEngineStateConfig
 ): UtxoEngineState {
+  console.log('makeUtxoEngineState')
   const {
     network,
     currencyInfo,
@@ -116,6 +117,7 @@ export function makeUtxoEngineState(
       processor
     })
     const percent = processedCount / totalCount
+    console.log('processed:', percent)
     if (percent - processedPercent > CACHE_THROTTLE || percent === 1) {
       processedPercent = percent
       emitter.emit(EngineEvent.ADDRESSES_CHECKED, percent)
@@ -1116,23 +1118,23 @@ const processUtxoTransactions = async (
   }
   await Promise.all(addPromises)
 
-  const diff = bs.sub(newBalance, oldBalance)
-  if (diff !== '0') {
-    log('balance changed:', { scriptPubkey, diff })
+  console.log('makeUtxoEngineState.ts:1122; scriptPubkey', scriptPubkey)
+  console.log('makeUtxoEngineState.ts:1124; newBalance', newBalance)
+  if (oldBalance !== newBalance) {
     emitter.emit(
       EngineEvent.ADDRESS_BALANCE_CHANGED,
       currencyInfo.currencyCode,
-      diff
+      ''
     )
-
-    await processor.updateAddressByScriptPubkey({
-      scriptPubkey,
-      data: {
-        balance: newBalance,
-        used: true
-      }
-    })
   }
+
+  await processor.updateAddressByScriptPubkey({
+    scriptPubkey,
+    data: {
+      balance: newBalance,
+      used: true
+    }
+  })
   setLookAhead({ ...args, ...args.path }).catch(err => {
     log.error(err)
     throw err

@@ -72,15 +72,17 @@ export async function makeUtxoEngine(
     log: config.options.log
   })
 
-  const metadata = await makeMetadata({
-    disklet: walletLocalDisklet,
-    emitter,
-    log
-  })
   const processor = await makeProcessor({
     disklet: walletLocalDisklet,
     emitter
   })
+  const metadata = await makeMetadata({
+    disklet: walletLocalDisklet,
+    emitter,
+    processor,
+    log
+  })
+
   const state = makeUtxoEngineState({
     ...config,
     walletTools,
@@ -462,8 +464,8 @@ export async function makeUtxoEngine(
         emitter: tmpEmitter,
         log
       }
-      const tmpMetadata = await makeMetadata(tmpConfig)
       const tmpProcessor = await makeProcessor(tmpConfig)
+      const tmpMetadata = await makeMetadata({ ...tmpConfig, processor })
       const tmpWalletTools = makeUtxoWalletTools({
         keys: { wifKeys: privateKeys },
         coin: currencyInfo.network,

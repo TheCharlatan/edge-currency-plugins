@@ -1,8 +1,8 @@
-import * as bs from 'biggystring'
 import { Disklet } from 'disklet'
 import { EdgeLog } from 'edge-core-js'
 import { makeMemlet, Memlet } from 'memlet'
 
+import { Processor } from '../utxobased/db/makeProcessor'
 import AwaitLock from '../utxobased/engine/await-lock'
 import { EngineEmitter, EngineEvent } from './makeEngineEmitter'
 import { LocalWalletMetadata } from './types'
@@ -12,6 +12,7 @@ const metadataPath = `metadata.json`
 interface MetadataConfig {
   disklet: Disklet
   emitter: EngineEmitter
+  processor: Processor
   log: EdgeLog
 }
 
@@ -22,7 +23,7 @@ export interface Metadata extends LocalWalletMetadata {
 export const makeMetadata = async (
   config: MetadataConfig
 ): Promise<Metadata> => {
-  const { disklet, emitter, log } = config
+  const { disklet, emitter, processor, log } = config
   const memlet = makeMemlet(disklet)
   const lock = new AwaitLock()
 
@@ -30,10 +31,17 @@ export const makeMetadata = async (
 
   emitter.on(
     EngineEvent.ADDRESS_BALANCE_CHANGED,
-    async (currencyCode: string, balanceDiff: string) => {
+    async (currencyCode: string, _balanceDiff: string) => {
       await lock.acquireAsync()
       try {
-        cache.balance = bs.add(cache.balance, balanceDiff)
+        const utxos = await processor.fetchAllUtxos()
+        let balance = ''
+        for (const utxo of utxos) {
+          balance += utxo.value
+        }
+
+        cache.balance = balance
+        log('cache.balance:', cache.balance)
         emitter.emit(
           EngineEvent.WALLET_BALANCE_CHANGED,
           currencyCode,
