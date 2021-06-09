@@ -664,14 +664,11 @@ const saveAddress = async (args: ProcessAndSaveAddressArgs): Promise<void> => {
   }
 
   try {
-    // Only create an index by path if one was given
-    if (data.path != null) {
-      await saveScriptPubkeyByPath({
-        tables,
-        scriptPubkey: data.scriptPubkey,
-        path: data.path
-      })
-    }
+    await tables.scriptPubkeyByPath.insert(
+      addressPathToPrefix(data.path),
+      data.path.addressIndex,
+      data.scriptPubkey
+    )
 
     // Create index for script pubkey by its balance
     await tables.scriptPubkeysByBalance.insert('', {
@@ -945,12 +942,9 @@ const updateAddressByScriptPubkey = async (
   // Only update the path field if one was given and currently does not have one
   // NOTE: Addresses can be stored in the db without a path due to the `EdgeCurrencyEngine.addGapLimitAddresses` function
   //  Once an address path is known, it should never be updated
-  if (data.path != null && address.path == null) {
-    address.path = data.path
-    promises.push(
-      saveScriptPubkeyByPath({ tables, scriptPubkey, path: data.path })
-    )
-  }
+  promises.push(
+    saveScriptPubkeyByPath({ tables, scriptPubkey, path: address.path })
+  )
 
   // Await the promises to update the address database
   await Promise.all([

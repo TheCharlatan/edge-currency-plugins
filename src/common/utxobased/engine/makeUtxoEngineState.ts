@@ -116,6 +116,14 @@ export function makeUtxoEngineState(
       processor
     })
     const percent = processedCount / totalCount
+    console.log(
+      'processed:',
+      percent,
+      'processedCount:',
+      processedCount,
+      'totalCount:',
+      totalCount
+    )
     if (percent - processedPercent > CACHE_THROTTLE || percent === 1) {
       processedPercent = percent
       emitter.emit(EngineEvent.ADDRESSES_CHECKED, percent)
@@ -382,7 +390,10 @@ interface FormatArgs extends CommonArgs, ShortPath {}
 
 interface SetLookAheadArgs extends FormatArgs {}
 
-const markUsed = async (args: SaveAddressArgs): Promise<void> => {
+interface MarkUsedArgs extends CommonArgs {
+  scriptPubkey: string
+}
+const markUsed = async (args: MarkUsedArgs): Promise<void> => {
   const { scriptPubkey, processor } = args
 
   await processor.saveUsedAddress(scriptPubkey)
@@ -737,10 +748,9 @@ const updateTransactions = (
 
 interface SaveAddressArgs extends CommonArgs {
   scriptPubkey: string
-  path?: AddressPath
+  path: AddressPath
   used?: boolean
 }
-
 const saveAddress = async (args: SaveAddressArgs): Promise<void> => {
   const { scriptPubkey, path, used = false, processor } = args
 
