@@ -1,7 +1,8 @@
 // Typescript translation from original code in edge-currency-bitcoin
 
-import { Disklet, navigateDisklet } from 'disklet'
+import { navigateDisklet } from 'disklet'
 import { EdgeIo, EdgeLog } from 'edge-core-js'
+import { makeMemlet, Memlet } from 'memlet'
 
 import { UtxoEngineState } from '../utxobased/engine/makeUtxoEngineState'
 import { ServerCache, ServerInfo } from './serverCache'
@@ -76,7 +77,7 @@ export class PluginState extends ServerCache {
   infoServerUris: string
 
   engines: UtxoEngineState[]
-  disklet: Disklet
+  memlet: Memlet
 
   serverCacheJson: { [serverUrl: string]: ServerInfo }
   pluginId: string
@@ -100,7 +101,7 @@ export class PluginState extends ServerCache {
       InfoServer
     )}/blockBookServers/${JSON.stringify(fixedCode)}`
     this.engines = []
-    this.disklet = navigateDisklet(io.disklet, 'plugins/' + pluginId)
+    this.memlet = makeMemlet(navigateDisklet(io.disklet, 'plugins/' + pluginId))
 
     this.pluginId = pluginId
     this.serverCacheJson = {}
@@ -108,7 +109,7 @@ export class PluginState extends ServerCache {
 
   async load(): Promise<PluginState> {
     try {
-      const serverCacheText = await this.disklet.getText('serverCache.json')
+      const serverCacheText = await this.memlet.getJson('serverCache.json')
       const serverCacheJson = JSON.parse(serverCacheText)
       // TODO: Validate JSON
 
@@ -138,7 +139,7 @@ export class PluginState extends ServerCache {
     // this.printServerCache()
     if (this.serverCacheDirty) {
       try {
-        await this.disklet.setText(
+        await this.memlet.setJson(
           'serverCache.json',
           JSON.stringify(this.servers_)
         )
