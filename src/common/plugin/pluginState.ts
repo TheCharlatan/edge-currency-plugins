@@ -109,11 +109,7 @@ export class PluginState extends ServerCache {
 
   async load(): Promise<PluginState> {
     try {
-      const serverCacheText = await this.memlet.getJson('serverCache.json')
-      const serverCacheJson = JSON.parse(serverCacheText)
-      // TODO: Validate JSON
-
-      this.serverCacheJson = serverCacheJson
+      this.serverCacheJson = await this.memlet.getJson('serverCache.json')
     } catch (e) {
       this.log(
         `${this.pluginId}: Failed to load server cache: ${JSON.stringify(e)}`
@@ -139,10 +135,7 @@ export class PluginState extends ServerCache {
     // this.printServerCache()
     if (this.serverCacheDirty) {
       try {
-        await this.memlet.setJson(
-          'serverCache.json',
-          JSON.stringify(this.servers_)
-        )
+        await this.memlet.setJson('serverCache.json', this.servers_)
         this.serverCacheDirty = false
         this.cacheLastSave_ = Date.now()
         this.log(`${this.pluginId} - Saved server cache`)
