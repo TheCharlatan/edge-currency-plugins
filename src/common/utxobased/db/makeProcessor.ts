@@ -176,9 +176,7 @@ export async function makeProcessor(
           scriptPubkey,
           data: { used: true }
         })
-      } catch (_err) {
-        console.log('just')
-      }
+      } catch (_err) {}
     },
 
     async getUsedAddress(scriptPubkey: string): Promise<boolean> {
@@ -904,7 +902,7 @@ const updateAddressByScriptPubkey = async (
   }
 
   // Holds array of promises that will be passed to a Promise.all
-  const promises: Array<Promise<unknown>> = []
+  // const promises: Array<Promise<unknown>> = []
 
   // Only update the networkQueryVal if one was given and is greater than the existing value
   if (
@@ -934,12 +932,12 @@ const updateAddressByScriptPubkey = async (
     // Also update the index of the address by balance
     const oldRange = parseInt(address.balance)
     address.balance = data.balance
-    promises.push(
-      tables.scriptPubkeysByBalance.update('', oldRange, {
-        [RANGE_ID_KEY]: address.scriptPubkey,
-        [RANGE_KEY]: parseInt(data.balance)
-      })
-    )
+    // promises.push(
+    await tables.scriptPubkeysByBalance.update('', oldRange, {
+      [RANGE_ID_KEY]: address.scriptPubkey,
+      [RANGE_KEY]: parseInt(data.balance)
+    })
+    // )
   }
 
   // Only update the path field if one was given and currently does not have one
@@ -947,16 +945,16 @@ const updateAddressByScriptPubkey = async (
   //  Once an address path is known, it should never be updated
   if (data.path != null && address.path == null) {
     address.path = data.path
-    promises.push(
-      saveScriptPubkeyByPath({ tables, scriptPubkey, path: data.path })
-    )
+    // promises.push(
+    await saveScriptPubkeyByPath({ tables, scriptPubkey, path: data.path })
+    // )
   }
 
   // Await the promises to update the address database
-  await Promise.all([
-    ...promises,
-    tables.addressByScriptPubkey.insert('', address.scriptPubkey, address)
-  ])
+  // await Promise.all([
+  // ...promises,
+  await tables.addressByScriptPubkey.insert('', address.scriptPubkey, address)
+  // ])
 
   // Return the updated address data
   return address

@@ -116,6 +116,15 @@ export function makeUtxoEngineState(
       processor
     })
     const percent = processedCount / totalCount
+    // if (Math.round(percent * 100) % 10 === 0)
+    console.log(
+      'percent',
+      percent,
+      'processed:',
+      processedCount,
+      'total:',
+      totalCount
+    )
     if (percent - processedPercent > CACHE_THROTTLE || percent === 1) {
       processedPercent = percent
       emitter.emit(EngineEvent.ADDRESSES_CHECKED, percent)
@@ -441,6 +450,7 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
       lastUsed = await getLastUsed()
       addressCount = getAddressCount()
     }
+    console.log(lastUsed)
     addToAddressSubscribeCache(args, addresses, { format, branch })
   } finally {
     lock.release()
@@ -503,6 +513,13 @@ export const pickNextTask = async (
     updateTransactionsCache
   } = taskCache
 
+  // console.log(
+  // Object.keys(addressSubscribeCache).length,
+  // Object.keys(utxosCache).length,
+  // Object.keys(rawUtxosCache).length,
+  // Object.keys(processedUtxosCache).length
+  // )
+
   const serverState = serverStates.getServerState(uri)
   if (serverState == null) return
 
@@ -514,7 +531,7 @@ export const pickNextTask = async (
       if (state == null) return true
       if (!state.processing && state.full) {
         state.processing = true
-        await processUtxoTransactions({
+        await processUtxos({
           ...args,
           scriptPubkey,
           utxos: state.utxos,
@@ -972,6 +989,7 @@ const processAddressTransactions = async (
         }
       } else {
         // Callback for when an address has been fully processed
+        console.log(path)
         args.onAddressChecked()
 
         await setLookAhead({ ...args, ...path })
@@ -1092,15 +1110,13 @@ const processAddressUtxos = async (
   }
 }
 
-interface ProcessUtxoTransactionArgs extends CommonArgs {
+interface ProcessUtxosArgs extends CommonArgs {
   scriptPubkey: string
   utxos: IUTXO[]
   path: ShortPath
 }
 
-const processUtxoTransactions = async (
-  args: ProcessUtxoTransactionArgs
-): Promise<void> => {
+const processUtxos = async (args: ProcessUtxosArgs): Promise<void> => {
   const { scriptPubkey, utxos, currencyInfo, processor, emitter, log } = args
 
   const currentUtxos = await processor.fetchUtxosByScriptPubkey(scriptPubkey)
@@ -1131,6 +1147,11 @@ const processUtxoTransactions = async (
         balance: newBalance,
         used: true
       }
+    })
+
+    setLookAhead({ ...args, ...args.path }).catch(err => {
+      log.error(err)
+      throw err
     })
   }
   setLookAhead({ ...args, ...args.path }).catch(err => {
