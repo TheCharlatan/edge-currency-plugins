@@ -111,6 +111,7 @@ export function makeSocket(uri: string, config: SocketConfig): Socket {
       try {
         message.task.deferred.reject(err)
       } catch (e) {
+        console.log(e.message)
         log.error(e.message)
       }
     }
@@ -118,6 +119,7 @@ export function makeSocket(uri: string, config: SocketConfig): Socket {
     try {
       emitter.emit(SocketEvent.CONNECTION_CLOSE, uri, err)
     } catch (e) {
+      console.log(e.message)
       log.error(e.message)
     }
   }
@@ -148,8 +150,10 @@ export function makeSocket(uri: string, config: SocketConfig): Socket {
     pushUpdate({
       id: walletId + '==' + uri,
       updateFunc: () => {
-        doWakeUp().catch(() => {
-          throw new Error('wake up')
+        doWakeUp().catch(err => {
+          log.error(`wake up: ${err.message}`)
+          console.log(err)
+          throw new Error(`wake up: ${err.message}`)
         })
       }
     })

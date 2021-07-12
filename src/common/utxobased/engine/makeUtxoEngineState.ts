@@ -116,9 +116,14 @@ export function makeUtxoEngineState(
       processor
     })
     const percent = processedCount / totalCount
+    // console.log(percent, processedCount, totalCount)
     if (percent - processedPercent > CACHE_THROTTLE || percent === 1) {
       processedPercent = percent
       emitter.emit(EngineEvent.ADDRESSES_CHECKED, percent)
+    }
+    if (percent === 1) {
+      console.log(percent, processedCount, totalCount)
+      // taskCache.transactionsCache = {}
     }
   }
 
@@ -145,7 +150,8 @@ export function makeUtxoEngineState(
     io: config.io,
     log,
     serverStates,
-    lock
+    lock,
+    nCalls: { calls: 0 }
   }
 
   const pickNextTaskCB = async (
@@ -313,6 +319,10 @@ export function makeUtxoEngineState(
   }
 }
 
+interface nCalls {
+  calls: number
+}
+
 interface CommonArgs {
   engineStarted: boolean
   network: NetworkEnum
@@ -327,6 +337,7 @@ interface CommonArgs {
   log: EdgeLog
   serverStates: ServerStates
   lock: AwaitLock
+  nCalls: nCalls
 }
 
 interface ShortPath {
@@ -384,12 +395,19 @@ interface SetLookAheadArgs extends FormatArgs {}
 
 const markUsed = async (args: SaveAddressArgs): Promise<void> => {
   const { scriptPubkey, processor } = args
-
   await processor.saveUsedAddress(scriptPubkey)
 }
 
 const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
-  const { lock, format, branch, currencyInfo, walletTools, processor } = args
+  const {
+    lock,
+    log,
+    format,
+    branch,
+    currencyInfo,
+    walletTools,
+    processor
+  } = args
   await lock.acquireAsync()
   try {
     const partialPath: Omit<AddressPath, 'addressIndex'> = {
@@ -407,7 +425,7 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
     const addresses: string[] = []
 
     if (Object.keys(args.taskCache.addressSubscribeCache).length === 0) {
-      for (let addressIndex = 0; addressIndex <= addressCount; addressIndex++) {
+      for (let addressIndex = 0; addressIndex < addressCount; addressIndex++) {
         addresses.push(
           walletTools.getAddress({ ...partialPath, addressIndex }).address
         )
@@ -425,7 +443,9 @@ const setLookAhead = async (args: SetLookAheadArgs): Promise<void> => {
       let used = false
       try {
         used = (await processor.getUsedAddress(scriptPubkey)) ?? false
-      } catch (err) {}
+      } catch (err) {
+        log.warn(`setLookAhead, getUsedAddress: ${err}`)
+      }
 
       await saveAddress({
         ...args,
@@ -503,6 +523,15 @@ export const pickNextTask = async (
     updateTransactionsCache
   } = taskCache
 
+  // console.log(
+  // Object.keys(addressSubscribeCache).length,
+  // Object.keys(utxosCache).length,
+  // Object.keys(rawUtxosCache).length,
+  // Object.keys(processedUtxosCache).length,
+  // Object.keys(transactionsCache).length,
+  // Object.keys(updateTransactionsCache).length
+  // )
+
   const serverState = serverStates.getServerState(uri)
   if (serverState == null) return
 
@@ -514,16 +543,16 @@ export const pickNextTask = async (
       if (state == null) return true
       if (!state.processing && state.full) {
         state.processing = true
+        taskCache.processedUtxosCache = removeItem(
+          processedUtxosCache,
+          scriptPubkey
+        )
         await processUtxoTransactions({
           ...args,
           scriptPubkey,
           utxos: state.utxos,
           path: state.path
         })
-        taskCache.processedUtxosCache = removeItem(
-          processedUtxosCache,
-          scriptPubkey
-        )
         return true
       }
     }
@@ -593,12 +622,14 @@ export const pickNextTask = async (
     for (const address of Object.keys(addressSubscribeCache)) {
       const state = addressSubscribeCache[address]
       // Add address in the cache to the set of addresses to watch
-      const { path, processing: subscribed } = state
+      const { path } = state
       // only process newly watched addresses
-      if (subscribed) continue
+      if (state.processing) continue
+
+      state.processing = true
       if (path != null) {
-        // Add the newly watched addresses to the UTXO cache
-        utxosCache[address] = {
+        //  Add the newly watched addresses to the UTXO cache
+        taskCache.utxosCache[address] = {
           processing: false,
           path
         }
@@ -683,21 +714,29 @@ export const pickNextTask = async (
     const state = transactionsCache[address]
     if (!state.processing && serverStates.serverCanGetAddress(uri, address)) {
       state.processing = true
-
-      taskCache.transactionsCache = removeItem(transactionsCache, address)
+      args.nCalls.calls += 1
+      // console.log('calls:', args.nCalls.calls)
+      // taskCache.transactionsCache = removeItem(transactionsCache, address)
 
       // Fetch and process address UTXOs
       const wsTask = await processAddressTransactions({
         ...args,
-        ...state,
+        path: state.path,
+        page: state.page,
+        networkQueryVal: state.networkQueryVal,
         address
       })
+
       wsTask.deferred.promise
         .then(() => {
           serverState.addresses.add(address)
         })
         .catch(e => {
-          throw e
+          args.log.warn(
+            `picknexttask, processAddressTransactions, ${e.message}`
+          )
+          state.processing = false
+          taskCache.transactionsCache[address] = state
         })
       return wsTask
     }
@@ -905,7 +944,6 @@ const internalGetFreshAddress = async (
 }
 
 interface ProcessAddressTxsArgs extends CommonArgs {
-  processing: boolean
   page: number
   networkQueryVal: number
   path: ShortPath
@@ -921,7 +959,7 @@ const processAddressTransactions = async (
 ): Promise<WsTask<addressResponse>> => {
   const {
     address,
-    page = 1,
+    page,
     networkQueryVal,
     processor,
     walletTools,
@@ -930,12 +968,17 @@ const processAddressTransactions = async (
     serverStates,
     uri
   } = args
-  const transactionsCache = taskCache.transactionsCache
 
   const scriptPubkey = walletTools.addressToScriptPubkey(address)
   const addressData = await processor.fetchAddressByScriptPubkey(scriptPubkey)
   if (addressData == null) {
-    throw new Error(`could not find address with script pubkey ${scriptPubkey}`)
+    taskCache.transactionsCache[address].processing = false
+    console.log('address data is null')
+    throw new Error(
+      `could not find address ${address} with script pubkey ${scriptPubkey}, path: ${JSON.stringify(
+        path
+      )}`
+    )
   }
 
   const queryTime = Date.now()
@@ -948,23 +991,33 @@ const processAddressTransactions = async (
       // If address is used and previously not marked as used, mark as used.
       const used = txs > 0 || unconfirmedTxs > 0
       if (used && !(addressData.used ?? false) && page === 1) {
-        await processor.updateAddressByScriptPubkey({
-          scriptPubkey,
-          data: {
-            used
-          }
-        })
+        try {
+          await processor.updateAddressByScriptPubkey({
+            scriptPubkey,
+            data: {
+              used
+            }
+          })
+        } catch (err) {
+          console.log('updateAddressByScriptPubkey err:', err)
+          throw err
+        }
         await setLookAhead({ ...args, ...path })
       }
 
       for (const rawTx of transactions) {
         const tx = processRawTx({ ...args, tx: rawTx })
-        await processor.saveTransaction(tx)
+        try {
+          await processor.saveTransaction(tx)
+        } catch (err) {
+          console.log('wtf:', err)
+          throw err
+        }
       }
 
       if (page < totalPages) {
         // Add the address back to the cache, incrementing the page
-        transactionsCache[address] = {
+        taskCache.transactionsCache[address] = {
           path,
           networkQueryVal,
           processing: false,
@@ -972,19 +1025,14 @@ const processAddressTransactions = async (
         }
       } else {
         // Callback for when an address has been fully processed
-        args.onAddressChecked()
-
         await setLookAhead({ ...args, ...path })
+
+        args.onAddressChecked()
       }
     })
-    .catch(() => {
-      args.processing = false
-      transactionsCache[address] = {
-        path,
-        networkQueryVal,
-        processing: args.processing,
-        page
-      }
+    .catch(err => {
+      console.log('processAddressTransactions', err)
+      throw err
     })
   return {
     ...addressMessage(address, {
@@ -1038,7 +1086,6 @@ const processRawTx = (args: ProcessRawTxArgs): IProcessorTransaction => {
 }
 
 interface ProcessAddressUtxosArgs extends CommonArgs {
-  processing: boolean
   path: ShortPath
   address: string
   uri: string
@@ -1056,7 +1103,6 @@ const processAddressUtxos = async (
     serverStates,
     uri
   } = args
-  const { utxosCache, rawUtxosCache } = taskCache
   const queryTime = Date.now()
   const deferredIAccountUTXOs = new Deferred<IAccountUTXO[]>()
   deferredIAccountUTXOs.promise
@@ -1070,7 +1116,7 @@ const processAddressUtxos = async (
         return
       }
       for (const utxo of utxos) {
-        rawUtxosCache[JSON.stringify(utxo)] = {
+        taskCache.rawUtxosCache[JSON.stringify(utxo)] = {
           processing: false,
           requiredCount: utxos.length,
           path,
@@ -1080,9 +1126,8 @@ const processAddressUtxos = async (
       }
     })
     .catch(() => {
-      args.processing = false
-      utxosCache[address] = {
-        processing: args.processing,
+      taskCache.utxosCache[address] = {
+        processing: false,
         path
       }
     })
@@ -1165,15 +1210,14 @@ const processRawUtxo = async (
     uri,
     log
   } = args
-  const { rawUtxosCache, processedUtxosCache } = taskCache
   let scriptType: ScriptTypeEnum
   let script: string
   let redeemScript: string | undefined
 
   // Function to call once we are finished
-  const done = (): void =>
-    addToProcessedUtxosCache(
-      processedUtxosCache,
+  const done = (): void => {
+    taskCache.processedUtxosCache = addToProcessedUtxosCache(
+      taskCache.processedUtxosCache,
       path,
       address.scriptPubkey,
       requiredCount,
@@ -1189,6 +1233,7 @@ const processRawUtxo = async (
         blockHeight: utxo.height ?? -1
       }
     )
+  }
 
   let tx: IProcessorTransaction | undefined
   switch (currencyFormatToPurposeType(format)) {
@@ -1213,7 +1258,7 @@ const processRawUtxo = async (
           .catch(e => {
             // If something went wrong, add the UTXO back to the queue
             log('error in processed utxos cache, re-adding utxo to cache:', e)
-            rawUtxosCache[JSON.stringify(utxo)] = {
+            taskCache.rawUtxosCache[JSON.stringify(utxo)] = {
               processing: false,
               path,
               address,
@@ -1252,7 +1297,7 @@ const addToProcessedUtxosCache = (
   scriptPubkey: string,
   requiredCount: number,
   utxo: IUTXO
-): void => {
+): ProcessedUtxoCache => {
   const processedUtxos = processedUtxosCache[scriptPubkey] ?? {
     utxos: [],
     processing: true,
@@ -1263,7 +1308,7 @@ const addToProcessedUtxosCache = (
     processedUtxo => processedUtxo.id === utxo.id
   )
 
-  if (found) return
+  if (found) return processedUtxosCache
 
   // ensure that no object inconsistencies are introduced if another task is already processing
   processedUtxos.processing = true
@@ -1271,4 +1316,5 @@ const addToProcessedUtxosCache = (
   processedUtxos.full = processedUtxos.utxos.length >= requiredCount
   processedUtxos.processing = false
   processedUtxosCache[scriptPubkey] = processedUtxos
+  return processedUtxosCache
 }

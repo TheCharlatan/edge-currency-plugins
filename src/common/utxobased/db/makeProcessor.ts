@@ -1,7 +1,7 @@
 import { clearMemletCache } from 'baselet'
 import * as bs from 'biggystring'
 import { Disklet, navigateDisklet } from 'disklet'
-import { EdgeGetTransactionsOptions } from 'edge-core-js'
+import { EdgeGetTransactionsOptions, EdgeLog } from 'edge-core-js'
 
 import { EngineEmitter, EngineEvent } from '../../plugin/makeEngineEmitter'
 import { AddressPath } from '../../plugin/types'
@@ -31,6 +31,7 @@ const BASELET_DIR = 'tables'
 interface ProcessorConfig {
   disklet: Disklet
   emitter: EngineEmitter
+  log: EdgeLog
 }
 
 interface UpdatePartialAddressByScriptPubkeyArgs {
@@ -142,7 +143,7 @@ interface DumpDataReturn {
 export async function makeProcessor(
   config: ProcessorConfig
 ): Promise<Processor> {
-  const { emitter } = config
+  const { emitter, log } = config
 
   const disklet = navigateDisklet(config.disklet, BASELET_DIR)
   let baselets = await makeBaselets({ disklet })
@@ -169,15 +170,15 @@ export async function makeProcessor(
     },
 
     async saveUsedAddress(scriptPubkey: string): Promise<void> {
-      await baselets.all.usedFlagByScriptPubkey.insert('', scriptPubkey, true)
       try {
+        await baselets.all.usedFlagByScriptPubkey.insert('', scriptPubkey, true)
         await updateAddressByScriptPubkey({
           tables: baselets.all,
           scriptPubkey,
           data: { used: true }
         })
-      } catch (_err) {
-        console.log('just')
+      } catch (err) {
+        log.warn(`processor saveUsedAdddress: ${err}`)
       }
     },
 
@@ -212,10 +213,18 @@ export async function makeProcessor(
     async insertTxIdByBlockHeight(
       args: InsertTxIdByBlockHeightArgs
     ): Promise<void> {
-      const { blockHeight, txid } = args
-      await baselets.tx(async tables => {
-        await saveTxIdByBlockHeight({ tables, txid, blockHeight })
-      })
+      try {
+        const { blockHeight, txid } = args
+        await baselets.tx(async tables => {
+          await saveTxIdByBlockHeight({ tables, txid, blockHeight })
+        })
+      } catch (err) {
+        console.log('insert txid', err)
+        if (err.message === 'Cannot insert data because id already exists') {
+          throw new Error('id already exists on updateTransaction')
+        }
+        throw err
+      }
     },
 
     async removeTxIdByBlockHeight(
@@ -296,44 +305,60 @@ export async function makeProcessor(
     },
 
     async saveAddress(data: IAddress): Promise<void> {
-      // Lock address tables
-      await baselets.address(async tables => {
-        // Process and save address data
-        await saveAddress({ tables, data })
-      })
-
-      // Lock transaction tables
-      const scriptPubkeyInfo = await baselets.tx(
-        async tables =>
-          // After address is saved, add to the queue processing any known transactions
-          await processScriptPubkeyTxs({
-            tables,
-            scriptPubkey: data.scriptPubkey,
-            emitter
-          })
-      )
-
-      // If script pubkey is used, update values
-      if (scriptPubkeyInfo.used) {
+      try {
         // Lock address tables
         await baselets.address(async tables => {
-          await updateAddressByScriptPubkey({
-            tables,
-            scriptPubkey: data.scriptPubkey,
-            data: scriptPubkeyInfo
-          })
+          // Process and save address data
+          await saveAddress({ tables, data })
         })
+
+        // Lock transaction tables
+        const scriptPubkeyInfo = await baselets.tx(
+          async tables =>
+            // After address is saved, add to the queue processing any known transactions
+            await processScriptPubkeyTxs({
+              tables,
+              scriptPubkey: data.scriptPubkey,
+              emitter
+            })
+        )
+
+        // If script pubkey is used, update values
+        if (scriptPubkeyInfo.used) {
+          // Lock address tables
+          await baselets.address(async tables => {
+            await updateAddressByScriptPubkey({
+              tables,
+              scriptPubkey: data.scriptPubkey,
+              data: scriptPubkeyInfo
+            })
+          })
+        }
+      } catch (err) {
+        console.log('in saveAddress', err)
+        if (err.message === 'Cannot insert data because id already exists') {
+          throw new Error('id already exists on saveAddress')
+        }
+        throw err
       }
     },
 
     async updateAddressByScriptPubkey(
       args: UpdatePartialAddressByScriptPubkeyArgs
     ): Promise<void> {
-      const { scriptPubkey, data } = args
-      // Lock address tables
-      await baselets.address(async tables => {
-        await updateAddressByScriptPubkey({ tables, scriptPubkey, data })
-      })
+      try {
+        const { scriptPubkey, data } = args
+        // Lock address tables
+        await baselets.address(async tables => {
+          await updateAddressByScriptPubkey({ tables, scriptPubkey, data })
+        })
+      } catch (err) {
+        console.log('in updateAddressByScriptPubkey', err)
+        if (err.message === 'Cannot insert data because id already exists') {
+          throw new Error('id already exists on updateAddressByScriptPubkey')
+        }
+        throw err
+      }
     },
 
     getNumTransactions(): number {
@@ -389,11 +414,27 @@ export async function makeProcessor(
           )
         }
 
+        console.log('txsbydate', txData.length)
+
+        let dates = txData.map(val => val[RANGE_ID_KEY])
+        console.log('dates:', dates.length)
+        dates = dates.filter((item, pos, self) => {
+          if (self.indexOf(item) === pos) {
+            return true
+          } else {
+            console.log('dates duplicate:', item)
+            return false
+          }
+        })
+        console.log('dates:', dates.length)
+
         // Fetch transaction data from the IDs
         const txs = await Promise.all(
           txData.map(
             async ({ [RANGE_ID_KEY]: txId }) =>
-              await baselets.all.txById.query('', [txId]).then(([tx]) => tx)
+              await baselets.all.txById.query('', [txId]).then(tx => {
+                return tx[0]
+              })
           )
         )
         // Make sure only existing transactions are returned
@@ -404,34 +445,50 @@ export async function makeProcessor(
     async saveTransaction(tx: IProcessorTransaction): Promise<void> {
       // Lock transaction tables
       // Returns data about script pubkeys that were affected by adding the transaction
-      const affectedScriptPubkeys = await baselets.tx(
-        async tables =>
-          await saveTx({
-            tables,
-            tx,
-            emitter,
-            // Pass helper function instead of address table to limit scope and prevent possibility of updating an address table
-            hasScriptPubkey: async scriptPubkey =>
-              await hasScriptPubkey({ tables: baselets.all, scriptPubkey })
-          })
-      )
+      try {
+        const affectedScriptPubkeys = await baselets.tx(
+          async tables =>
+            await saveTx({
+              tables,
+              tx,
+              emitter,
+              // Pass helper function instead of address table to limit scope and prevent possibility of updating an address table
+              hasScriptPubkey: async scriptPubkey =>
+                await hasScriptPubkey({ tables: baselets.all, scriptPubkey })
+            })
+        )
 
-      // Lock address tables
-      await baselets.address(async tables => {
-        // Update relevant address data
-        for (const { scriptPubkey, ...data } of affectedScriptPubkeys) {
-          await updateAddressByScriptPubkey({ tables, scriptPubkey, data })
+        if (affectedScriptPubkeys == null) return
+
+        // Lock address tables
+        await baselets.address(async tables => {
+          // Update relevant address data
+          for (const { scriptPubkey, ...data } of affectedScriptPubkeys) {
+            await updateAddressByScriptPubkey({ tables, scriptPubkey, data })
+          }
+        })
+      } catch (err) {
+        if (err.message === 'Cannot insert data because id already exists') {
+          log.warn('resolved processor saveTransaction double entry error')
+          return
         }
-      })
+        log.error(`processor saveTransaction ${err.message}`)
+        throw err
+      }
     },
 
     async updateTransaction(args: UpdateTransactionArgs): Promise<void> {
-      const { txid, data } = args
-      // Lock transaction tables
-      await baselets.tx(async tables => {
-        // Update transaction data
-        await updateTx({ tables, txid, data, emitter })
-      })
+      try {
+        const { txid, data } = args
+        // Lock transaction tables
+        await baselets.tx(async tables => {
+          // Update transaction data
+          await updateTx({ tables, txid, data, emitter })
+        })
+      } catch (err) {
+        console.log('in udpateTransaction', err)
+        throw err
+      }
     },
 
     async dropTransaction(txid: string): Promise<void> {
@@ -481,10 +538,18 @@ export async function makeProcessor(
     },
 
     async saveUtxo(utxo: IUTXO): Promise<void> {
-      // Lock UTXO tables
-      await baselets.utxo(async tables => {
-        await saveUtxo({ tables, utxo })
-      })
+      try {
+        // Lock UTXO tables
+        await baselets.utxo(async tables => {
+          await saveUtxo({ tables, utxo })
+        })
+      } catch (err) {
+        console.log('in saveUtxo', err)
+        if (err.message === 'Cannot insert data because id already exists') {
+          log.warn('resolved processor saveUtxo double entry error')
+        }
+        throw err
+      }
     },
 
     async removeUtxo(id: string): Promise<IUTXO> {
@@ -499,7 +564,15 @@ export async function makeProcessor(
     },
 
     async saveSpentUtxo(utxo: IUTXO): Promise<void> {
-      await baselets.all.spentUtxoById.insert('', utxo.id, utxo)
+      try {
+        await baselets.all.spentUtxoById.insert('', utxo.id, utxo)
+      } catch (err) {
+        console.log('in saveSpentUtxo', err)
+        if (err.message === 'Cannot insert data because id already exists') {
+          log.warn('resolved processor saveSpentUtxo double entry error')
+        }
+        throw err
+      }
     },
 
     async fetchSpentUtxo(id: string): Promise<IUTXO> {
@@ -686,6 +759,8 @@ const saveAddress = async (args: ProcessAndSaveAddressArgs): Promise<void> => {
     // Save the address data by the script pubkey
     await tables.addressByScriptPubkey.insert('', data.scriptPubkey, data)
   } catch (err) {
+    console.log(err, '\n\n')
+    throw err
     // TODO: rethrow?
   }
 }
@@ -1027,7 +1102,7 @@ type SaveTxReturn = Array<{
  * @param args {SaveTxArgs}
  * @returns An array of script pubkeys and data to update it with
  */
-const saveTx = async (args: SaveTxArgs): Promise<SaveTxReturn> => {
+const saveTx = async (args: SaveTxArgs): Promise<SaveTxReturn | undefined> => {
   const { tables, tx, emitter, hasScriptPubkey } = args
 
   // Update the date index
@@ -1036,10 +1111,17 @@ const saveTx = async (args: SaveTxArgs): Promise<SaveTxReturn> => {
   // NOTE: Multiple address can try to save the same transaction
   if (existingTx == null) {
     // Add an index for the date
-    await tables.txsByDate.insert('', {
-      [RANGE_ID_KEY]: tx.txid,
-      [RANGE_KEY]: tx.date
-    })
+    try {
+      await tables.txsByDate.insert('', {
+        [RANGE_ID_KEY]: tx.txid,
+        [RANGE_KEY]: tx.date
+      })
+    } catch (err) {
+      // console.log(tx.txid, tx.date, err)
+      if (err.message !== 'Cannot insert data because id already exists') {
+        throw err
+      }
+    }
   }
 
   // Check every input and output of the transaction to create indices
@@ -1049,46 +1131,55 @@ const saveTx = async (args: SaveTxArgs): Promise<SaveTxReturn> => {
     const arr = isInput ? tx.inputs : tx.outputs
     for (let i = 0; i < arr.length; i++) {
       const { scriptPubkey } = arr[i]
-
-      // Create index for this tx and script pubkey
-      await saveTxByScriptPubkey({
-        tables,
-        scriptPubkey,
-        txid: tx.txid,
-        isInput,
-        index: i
-      })
-
-      // If the script pubkey is in wallet, update ourIns and ourOuts
-      const own = await hasScriptPubkey(scriptPubkey)
-      if (own) {
-        if (isInput) {
-          tx.ourIns.push(i.toString())
-        } else {
-          tx.ourOuts.push(i.toString())
-        }
-
-        // Keep reference of script pubkeys that should be updated
-        affectedScriptPubkeys.push({
+      try {
+        // Create index for this tx and script pubkey
+        await saveTxByScriptPubkey({
+          tables,
           scriptPubkey,
-          used: true,
-          lastTouched: tx.date
+          txid: tx.txid,
+          isInput,
+          index: i
         })
+
+        // If the script pubkey is in wallet, update ourIns and ourOuts
+        const own = await hasScriptPubkey(scriptPubkey)
+        if (own) {
+          if (isInput) {
+            tx.ourIns.push(i.toString())
+          } else {
+            tx.ourOuts.push(i.toString())
+          }
+
+          // Keep reference of script pubkeys that should be updated
+          affectedScriptPubkeys.push({
+            scriptPubkey,
+            used: true,
+            lastTouched: tx.date
+          })
+        }
+      } catch (err) {
+        console.log('procesor saveTx err:', err)
       }
     }
   }
   // After ourIns and ourOuts have been determined, calculate tx amount
   tx.ourAmount = await calculateTxAmount(tx)
 
-  // Create index by block height
+  // Create index by block height - not updated if duplicate already exists
   await saveTxIdByBlockHeight({
     tables,
     txid: tx.txid,
     blockHeight: tx.blockHeight
   })
 
-  // Save transaction to database
-  await tables.txById.insert('', tx.txid, tx)
+  // try {
+  //   // Save transaction to database
+  //   await tables.txById.insert('', tx.txid, tx)
+  // } catch (err) {
+  //   console.log('txById err:', err)
+  // }
+
+  await saveTxByTxid({ tables, tx })
 
   // Emit event that the transaction was saved
   emitter.emit(EngineEvent.PROCESSOR_TRANSACTION_CHANGED, tx)
@@ -1261,6 +1352,22 @@ const saveTxIdByBlockHeight = async (
   })
 }
 
+interface SaveTxByTxidArgs {
+  tables: TransactionTables
+  tx: IProcessorTransaction
+}
+const saveTxByTxid = async (args: SaveTxByTxidArgs): Promise<void> => {
+  const { tables, tx } = args
+  // Short circuit adding a transaction if it already exists
+  const data = await tables.txById.query('', [tx.txid])
+  if (data[0] != null || data.length > 1) {
+    return
+  }
+
+  // Save transaction
+  await tables.txById.insert('', tx.txid, tx)
+}
+
 interface DeleteTxIdByBlockHeightArgs {
   tables: TransactionTables
   txid: string
@@ -1306,9 +1413,11 @@ const saveUtxo = async (args: SaveUtxoArgs): Promise<void> => {
       [RANGE_KEY]: parseInt(utxo.value)
     })
   } catch (err) {
-    if (err.message !== 'Cannot insert data because id already exists') {
-      throw err
+    console.log(err, utxo)
+    if (err.message === 'Cannot insert data because id already exists') {
+      throw new Error('id already exists on saveUtxo')
     }
+    throw err
   }
 
   // Create index for script pubkey
@@ -1317,11 +1426,16 @@ const saveUtxo = async (args: SaveUtxoArgs): Promise<void> => {
   ])
   const set = new Set(utxoIds)
   set.add(utxo.id)
-  await tables.utxoIdsByScriptPubkey.insert(
-    '',
-    utxo.scriptPubkey,
-    Array.from(set)
-  )
+  try {
+    await tables.utxoIdsByScriptPubkey.insert(
+      '',
+      utxo.scriptPubkey,
+      Array.from(set)
+    )
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
 }
 
 interface DeleteUtxoArgs {

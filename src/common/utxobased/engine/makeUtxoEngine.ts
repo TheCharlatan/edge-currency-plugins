@@ -79,7 +79,8 @@ export async function makeUtxoEngine(
   })
   const processor = await makeProcessor({
     disklet: walletLocalDisklet,
-    emitter
+    emitter,
+    log
   })
   const state = makeUtxoEngineState({
     ...config,

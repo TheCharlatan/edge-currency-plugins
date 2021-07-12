@@ -3,13 +3,12 @@ import { CountBase } from 'baselet/src/CountBase'
 import { HashBase } from 'baselet/src/HashBase'
 import { RangeBase } from 'baselet/src/RangeBase'
 
-import { AddressPath } from '../../plugin/types'
+// import { AddressPath } from '../../plugin/types'
 import { ScriptTypeEnum } from '../keymanager/keymanager'
 
 export interface IAddress {
   scriptPubkey: string
   networkQueryVal: number
-  path?: AddressPath
   lastQuery: number
   lastTouched: number
   used: boolean
@@ -42,6 +41,7 @@ export interface IProcessorTransaction {
 }
 
 export interface ITransactionOutput {
+  index?: number
   amount: string
   scriptPubkey: string
 }
