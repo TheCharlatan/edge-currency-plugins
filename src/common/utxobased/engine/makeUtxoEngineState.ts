@@ -745,12 +745,11 @@ interface SaveAddressArgs extends CommonArgs {
 }
 
 const saveAddress = async (args: SaveAddressArgs): Promise<void> => {
-  const { scriptPubkey, path, used = false, processor } = args
+  const { scriptPubkey, used = false, processor } = args
 
   try {
     await processor.saveAddress({
       scriptPubkey,
-      path,
       used,
       networkQueryVal: 0,
       lastQuery: 0,
@@ -762,7 +761,6 @@ const saveAddress = async (args: SaveAddressArgs): Promise<void> => {
       await processor.updateAddressByScriptPubkey({
         scriptPubkey,
         data: {
-          path,
           used
         }
       })
@@ -884,12 +882,17 @@ interface GetFreshAddressReturn {
 const internalGetFreshAddress = async (
   args: GetFreshAddressArgs
 ): Promise<GetFreshAddressReturn> => {
-  const { format, branch, walletTools, processor } = args
+  const { format, branch, walletTools, processor, currencyInfo } = args
+
+  const addressCount = processor.getNumAddressesFromPathPartition({
+    format,
+    changeIndex: branch
+  })
 
   const path: AddressPath = {
     format,
     changeIndex: branch,
-    addressIndex: (await findLastUsedIndex(args)) + 1
+    addressIndex: addressCount - currencyInfo.gapLimit + 1
   }
   const scriptPubkey =
     (await processor.fetchScriptPubkeyByPath(path)) ??
@@ -1073,7 +1076,7 @@ const processAddressUtxos = async (
       const addressData = await processor.fetchAddressByScriptPubkey(
         scriptPubkey
       )
-      if (addressData == null || addressData.path == null) {
+      if (addressData == null) {
         return
       }
       for (const utxo of utxos) {
@@ -1082,7 +1085,7 @@ const processAddressUtxos = async (
           requiredCount: utxos.length,
           path,
           // TypeScript yells otherwise
-          address: { ...addressData, path: addressData.path }
+          address: { ...addressData }
         }
       }
     })

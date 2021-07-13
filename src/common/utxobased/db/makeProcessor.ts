@@ -634,7 +634,7 @@ interface ProcessAndSaveAddressArgs {
  * @param args {ProcessAndSaveAddressArgs}
  */
 const saveAddress = async (args: ProcessAndSaveAddressArgs): Promise<void> => {
-  const { tables, data } = args
+  const { tables, data, path } = args
 
   // Make sure that the address does not already exists
   const [addressData] = await tables.addressByScriptPubkey.query('', [
@@ -644,31 +644,26 @@ const saveAddress = async (args: ProcessAndSaveAddressArgs): Promise<void> => {
     throw new Error('Address already exists.')
   }
 
-  try {
-    // Only create an index by path if one was given
-    if (data.path != null) {
-      await saveScriptPubkeyByPath({
-        tables,
-        scriptPubkey: data.scriptPubkey,
-        path: data.path
-      })
-    }
-
-    // Create index for script pubkey by its balance
-    await tables.scriptPubkeysByBalance.insert('', {
-      [RANGE_ID_KEY]: data.scriptPubkey,
-      [RANGE_KEY]: parseInt(data.balance)
+  if (path != null) {
+    await saveScriptPubkeyByPath({
+      tables,
+      scriptPubkey: data.scriptPubkey,
+      path: path
     })
-
-    // // TODO: change to rangebase
-    // // Create index for most recently used
-    // await tables.addressPathByMRU.insert('', index, data)
-
-    // Save the address data by the script pubkey
-    await tables.addressByScriptPubkey.insert('', data.scriptPubkey, data)
-  } catch (err) {
-    // TODO: rethrow?
   }
+
+  // Create index for script pubkey by its balance
+  await tables.scriptPubkeysByBalance.insert('', {
+    [RANGE_ID_KEY]: data.scriptPubkey,
+    [RANGE_KEY]: parseInt(data.balance)
+  })
+
+  // // TODO: change to rangebase
+  // // Create index for most recently used
+  // await tables.addressPathByMRU.insert('', index, data)
+
+  // Save the address data by the script pubkey
+  await tables.addressByScriptPubkey.insert('', data.scriptPubkey, data)
 }
 
 interface ProcessScriptPubkeyTxsArgs {
@@ -926,12 +921,12 @@ const updateAddressByScriptPubkey = async (
   // Only update the path field if one was given and currently does not have one
   // NOTE: Addresses can be stored in the db without a path due to the `EdgeCurrencyEngine.addGapLimitAddresses` function
   //  Once an address path is known, it should never be updated
-  if (data.path != null && address.path == null) {
-    address.path = data.path
-    promises.push(
-      saveScriptPubkeyByPath({ tables, scriptPubkey, path: data.path })
-    )
-  }
+  // if (data.path != null && address.path == null) {
+  // address.path = data.path
+  // promises.push(
+  // saveScriptPubkeyByPath({ tables, scriptPubkey, path: data.path })
+  // )
+  // }
 
   // Await the promises to update the address database
   await Promise.all([
